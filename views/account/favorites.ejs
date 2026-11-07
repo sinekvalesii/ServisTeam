@@ -1,0 +1,9 @@
+<%- include('../partials/header') %>
+<h1>Favorilerim</h1>
+<% if (!listings.length) { %>
+  <div class="empty"><%- icon('heart') %><p>Henüz favori ilanınız yok. İlanlardaki kalp işaretine dokunarak kaydedebilirsiniz.</p><a class="btn btn-primary" href="/ilanlar">İlanlara Göz At</a></div>
+<% } %>
+<div class="list">
+  <% for (const l of listings) { %><%- include('../partials/listing-card', { l, showStatus: true }) %><% } %>
+</div>
+<%- include('../partials/footer') %>

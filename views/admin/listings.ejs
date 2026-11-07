@@ -1,0 +1,41 @@
+<%- include('_top') %>
+<h1>İlan Yönetimi</h1>
+<nav class="tabs">
+  <% for (const [k, v] of [['active','Yayında'],['pending','Onay bekleyen'],['featured','Öne çıkan'],['passive','Pasif'],['rejected','Reddedilen'],['deleted','Silinen']]) { %>
+    <a href="?durum=<%= k %>" class="<%= status === k ? 'on' : '' %>"><%= v %></a>
+  <% } %>
+</nav>
+<form method="get" style="display:flex;gap:8px;margin-bottom:14px"><input type="hidden" name="durum" value="<%= status %>"><input type="search" name="q" value="<%= q %>" placeholder="İlan no, başlık veya kullanıcı adı"><button class="btn btn-primary">Ara</button></form>
+<% if (!rows.length) { %><div class="empty">Kayıt yok.</div><% } %>
+<% for (const l of rows) { const feat = l.featured_until && new Date(l.featured_until) > new Date(); %>
+<div class="card" style="padding:14px">
+  <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap">
+    <div>
+      <div class="tags"><span class="tag">#<%= l.id %></span><span class="tag tag-gray"><%= tax.CATEGORIES[l.category]?.label %></span><% if (feat) { %><span class="tag tag-amber">Öne çıkan · bitiş: <%= fmtDate(l.featured_until) %></span><% } %></div>
+      <a href="/ilan/<%= l.id %>" target="_blank"><strong><%= l.title %></strong></a>
+      <div class="small muted"><a href="/yonetim/kullanicilar/<%= l.user_id %>"><%= l.display_name %></a> · <%= geo.cityName(l.city_code) %> · <%= fmtDateTime(l.created_at) %> · <%= l.view_count %> görüntülenme</div>
+    </div>
+  </div>
+  <details style="margin-top:8px"><summary class="small" style="cursor:pointer">Açıklamayı göster</summary><div class="desc small" style="margin-top:6px"><%= l.description %></div></details>
+  <div class="btn-row" style="margin-top:10px">
+    <% const act = (a, label, cls, extra) => `<form method="post" action="/yonetim/ilanlar/${l.id}" class="inline-form"${a === 'delete' ? ' data-confirm="İlan silinsin mi?"' : ''}><input type="hidden" name="_csrf" value="${csrf}"><input type="hidden" name="action" value="${a}">${extra || ''}<button class="btn btn-sm ${cls}">${label}</button></form>`; %>
+    <% if (l.status === 'pending' || l.status === 'rejected') { %><%- act('approve', 'Onayla', 'btn-green') %><% } %>
+    <% if (l.status === 'active') { %>
+      <form method="post" action="/yonetim/ilanlar/<%= l.id %>" class="inline-form" style="display:inline-flex;gap:6px;align-items:center">
+        <input type="hidden" name="_csrf" value="<%= csrf %>"><input type="hidden" name="action" value="feature">
+        <select name="days" style="width:auto;min-height:42px;padding:4px 34px 4px 10px"><option value="7">7 gün</option><option value="14">14 gün</option><option value="30">30 gün</option></select>
+        <input name="amount" type="text" inputmode="decimal" placeholder="Ücret ₺" style="width:100px;min-height:42px;padding:6px 10px">
+        <button class="btn btn-sm btn-accent"><%- icon('star') %> Öne çıkar</button>
+      </form>
+      <% if (feat) { %><%- act('unfeature', 'Öne çıkarmayı kaldır', 'btn-ghost') %><% } %>
+      <%- act('passive', 'Pasife al', 'btn-ghost') %>
+    <% } %>
+    <% if (l.status !== 'deleted' && l.status !== 'rejected') { %>
+      <form method="post" action="/yonetim/ilanlar/<%= l.id %>" class="inline-form" style="display:inline-flex;gap:6px"><input type="hidden" name="_csrf" value="<%= csrf %>"><input type="hidden" name="action" value="reject">
+        <input name="reason" placeholder="Red gerekçesi" style="min-height:42px;padding:6px 10px;width:180px"><button class="btn btn-sm btn-danger">Reddet</button></form>
+    <% } %>
+    <% if (l.status !== 'deleted') { %><%- act('delete', 'Sil', 'btn-danger') %><% } %>
+  </div>
+</div>
+<% } %>
+<%- include('_bottom') %>

@@ -1,0 +1,116 @@
+<%- include('../partials/header') %>
+<div class="section-head">
+  <div>
+    <h1 style="margin:0"><%= title %></h1>
+    <div class="muted small"><%= total %> ilan bulundu</div>
+  </div>
+  <button type="button" class="btn btn-ghost btn-sm filter-toggle" data-filter-toggle aria-expanded="false" aria-controls="filters"><%- icon('filter') %> Filtrele</button>
+</div>
+
+<%
+  const chips = [];
+  if (q.q) chips.push(['"' + q.q + '"', { q: '' }]);
+  if (q.kategori && tax.CATEGORIES[q.kategori]) chips.push([tax.CATEGORIES[q.kategori].label, { kategori: '' }]);
+  if (q.arac && tax.VEHICLE_TYPES[q.arac]) chips.push([tax.VEHICLE_TYPES[q.arac].split(' (')[0], { arac: '' }]);
+  if (q.ilce) chips.push([q.ilce, { ilce: '' }]);
+  for (const h of hizmet) chips.push([tax.SERVICE_TYPES[h], { hizmet: hizmet.filter(x => x !== h) }]);
+  if (q.belgeli === '1') chips.push(['Belgeli', { belgeli: '' }]);
+  if (q.ucret === 'var') chips.push(['Ücreti belli', { ucret: '' }]);
+%>
+<% if (chips.length || il) { %>
+<div class="active-filters">
+  <% if (il) { %><a href="<%= qsWith(q, { il: 'tum', ilce: '', sayfa: '' }) %>"><%- icon('pin') %> <%= geo.cityName(il) %> <%- icon('x') %><span class="sr-only">kaldır</span></a><% } %>
+  <% for (const [label, ch] of chips) { %><a href="/ilanlar<%= qsWith(q, { ...ch, sayfa: '' }) %>"><%= label %> <%- icon('x') %><span class="sr-only">kaldır</span></a><% } %>
+  <% if (chips.length) { %><a href="/ilanlar" style="background:transparent">Tümünü temizle</a><% } %>
+</div>
+<% } %>
+
+<div class="layout" style="align-items:start">
+  <div>
+    <% if (!featured.length && !rows.length) { %>
+      <div class="empty"><%- icon('search') %>
+        <p><strong>Bu filtrelere uygun ilan bulunamadı.</strong><br>Filtreleri azaltmayı veya tüm Türkiye'de aramayı deneyin.</p>
+        <div class="btn-row" style="justify-content:center">
+          <a class="btn btn-ghost" href="<%= qsWith(q, { il: 'tum', ilce: '' }) %>">Tüm Türkiye'de ara</a>
+          <a class="btn btn-accent" href="/ilan-ver">İlk ilanı siz verin</a>
+        </div>
+      </div>
+    <% } %>
+    <div class="list">
+      <% for (const l of featured) { %><%- include('../partials/listing-card', { l }) %><% } %>
+      <% rows.forEach((l, i) => { %>
+        <%- include('../partials/listing-card', { l }) %>
+        <% if (i === 4) { %><%- include('../partials/ad', { slot: slots.list_inline }) %><% } %>
+      <% }) %>
+    </div>
+    <% if (pages > 1) { %>
+    <nav class="pager" aria-label="Sayfalar">
+      <% if (page > 1) { %><a class="btn btn-ghost" href="<%= qsWith(q, { sayfa: page - 1 }) %>"><%- icon('back') %> Önceki</a><% } %>
+      <span class="btn btn-quiet" aria-current="page">Sayfa <%= page %> / <%= pages %></span>
+      <% if (page < pages) { %><a class="btn btn-ghost" href="<%= qsWith(q, { sayfa: page + 1 }) %>">Sonraki <%- icon('arrow') %></a><% } %>
+    </nav>
+    <% } %>
+  </div>
+
+  <aside class="filters-col">
+    <form class="filters" id="filters" method="get" action="/ilanlar">
+      <div class="field">
+        <label for="fq">Kelime ile ara</label>
+        <input id="fq" name="q" type="search" value="<%= q.q || '' %>" placeholder="Örn. Esenyurt, D1, vardiya">
+      </div>
+      <div class="field">
+        <label for="fkat">İlan türü</label>
+        <select id="fkat" name="kategori">
+          <option value="">Tümü</option>
+          <% for (const [k, c] of Object.entries(tax.CATEGORIES)) { %><option value="<%= k %>" <%= q.kategori === k ? 'selected' : '' %>><%= c.label %></option><% } %>
+        </select>
+      </div>
+      <div class="field">
+        <label for="fil">İl</label>
+        <select id="fil" name="il" data-city>
+          <option value="tum">Tüm Türkiye</option>
+          <% for (const c of geo.iller) { %><option value="<%= c.code %>" <%= il === c.code ? 'selected' : '' %>><%= c.name %></option><% } %>
+        </select>
+      </div>
+      <div class="field">
+        <label for="filce">İlçe</label>
+        <select id="filce" name="ilce" data-district data-selected="<%= q.ilce || '' %>">
+          <option value="">Tüm ilçeler</option>
+          <% if (il) { for (const d of geo.byCode[il].districts) { %><option <%= q.ilce === d ? 'selected' : '' %>><%= d %></option><% } } %>
+        </select>
+      </div>
+      <div class="field">
+        <label for="farac">Araç tipi</label>
+        <select id="farac" name="arac">
+          <option value="">Tümü</option>
+          <% for (const [k, v] of Object.entries(tax.VEHICLE_TYPES)) { %><option value="<%= k %>" <%= q.arac === k ? 'selected' : '' %>><%= v %></option><% } %>
+        </select>
+      </div>
+      <div class="field">
+        <span class="label">Hizmet türü</span>
+        <div class="pills"><% for (const [k, v] of Object.entries(tax.SERVICE_TYPES)) { %><label class="pill"><input type="checkbox" name="hizmet" value="<%= k %>" <%= hizmet.includes(k) ? 'checked' : '' %>><span><%= v %></span></label><% } %></div>
+      </div>
+      <div class="field">
+        <label for="ffirma">İlan sahibi</label>
+        <select id="ffirma" name="firma">
+          <option value="">Hepsi</option>
+          <option value="bireysel" <%= q.firma === 'bireysel' ? 'selected' : '' %>>Bireysel</option>
+          <option value="firma" <%= q.firma === 'firma' ? 'selected' : '' %>>Firma</option>
+        </select>
+      </div>
+      <label class="check"><input type="checkbox" name="belgeli" value="1" <%= q.belgeli === '1' ? 'checked' : '' %>> <span>Sadece belgesi doğrulanmış</span></label>
+      <label class="check"><input type="checkbox" name="ucret" value="var" <%= q.ucret === 'var' ? 'checked' : '' %>> <span>Sadece ücreti belli olanlar</span></label>
+      <div class="field" style="margin-top:8px">
+        <label for="fsira">Sıralama</label>
+        <select id="fsira" name="sirala">
+          <option value="">En yeni</option>
+          <option value="ucret_azalan" <%= q.sirala === 'ucret_azalan' ? 'selected' : '' %>>Ücret (yüksekten düşüğe)</option>
+          <option value="ucret_artan" <%= q.sirala === 'ucret_artan' ? 'selected' : '' %>>Ücret (düşükten yükseğe)</option>
+        </select>
+      </div>
+      <button class="btn btn-primary btn-block" type="submit"><%- icon('search') %> İlanları Göster</button>
+    </form>
+    <%- include('../partials/ad', { slot: slots.sidebar }) %>
+  </aside>
+</div>
+<%- include('../partials/footer') %>

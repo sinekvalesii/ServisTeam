@@ -1,0 +1,31 @@
+<%- include('../partials/header') %>
+<div class="narrow">
+  <a class="btn btn-quiet" href="/hesap"><%- icon('back') %> Hesabım</a>
+  <div class="card">
+    <h1>Profil Bilgilerim</h1>
+    <form method="post" action="/hesap/profil" novalidate>
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <div class="field">
+        <label for="display_name">Ad Soyad</label>
+        <input id="display_name" name="display_name" type="text" maxlength="80" value="<%= form.display_name %>" required>
+        <% if (errors.display_name) { %><div class="err-text"><%= errors.display_name %></div><% } %>
+      </div>
+      <div class="field">
+        <label for="phone">Cep telefonu</label>
+        <input id="phone" name="phone" type="tel" inputmode="tel" value="<%= form.phone ? '0' + form.phone.slice(3) : '' %>" required>
+        <% if (errors.phone) { %><div class="err-text"><%= errors.phone %></div><% } %>
+      </div>
+      <div class="field">
+        <label for="account_type">Hesap türü</label>
+        <select id="account_type" name="account_type">
+          <% for (const [k, t] of Object.entries(tax.ACCOUNT_TYPES)) { %><option value="<%= k %>" <%= form.account_type === k ? 'selected' : '' %>><%= t.label %></option><% } %>
+        </select>
+        <div class="hint">Hesap türünü değiştirirseniz kaydettikten sonra o türe özel alanları doldurun.</div>
+      </div>
+      <%- include('../partials/details-form', { type: form.account_type, form, errors }) %>
+      <button class="btn btn-primary btn-block" type="submit">Kaydet</button>
+    </form>
+    <p class="small muted" style="margin-top:14px">E-posta adresiniz: <strong><%= user.email %></strong>. Değiştirmek için destek ekibine yazın.</p>
+  </div>
+</div>
+<%- include('../partials/footer') %>

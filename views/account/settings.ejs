@@ -1,0 +1,47 @@
+<%- include('../partials/header') %>
+<div class="narrow">
+  <a class="btn btn-quiet" href="/hesap"><%- icon('back') %> Hesabım</a>
+  <h1>Hesap Ayarları</h1>
+
+  <div class="card">
+    <h2><%- icon('lock') %> Şifre değiştir</h2>
+    <form method="post" action="/hesap/sifre">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <div class="field"><label for="current">Mevcut şifre</label><div class="pw-wrap"><input id="current" name="current" type="password" autocomplete="current-password" required><button type="button" data-pw-toggle>Göster</button></div></div>
+      <div class="field"><label for="password">Yeni şifre</label><div class="pw-wrap"><input id="password" name="password" type="password" autocomplete="new-password" minlength="8" required><button type="button" data-pw-toggle>Göster</button></div></div>
+      <button class="btn btn-primary" type="submit">Şifreyi Değiştir</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2><%- icon('mail') %> İletişim izinleri</h2>
+    <form method="post" action="/hesap/izinler">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <label class="check"><input type="checkbox" name="marketing" value="1" <%= marketing ? 'checked' : '' %>> <span>Kampanya ve duyurular için e-posta/SMS almak istiyorum.</span></label>
+      <button class="btn btn-ghost" type="submit">Kaydet</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2><%- icon('text') %> Yazı boyutu</h2>
+    <p class="small muted">Yazıları daha büyük görmek için düğmeye dokunun. Tercihiniz bu cihazda hatırlanır.</p>
+    <button type="button" class="btn btn-ghost" data-text-size><%- icon('text') %> Yazıyı büyüt / küçült</button>
+  </div>
+
+  <div class="card">
+    <h2><%- icon('file') %> Kişisel verilerim</h2>
+    <p class="small">KVKK kapsamındaki haklarınız gereği hakkınızda tuttuğumuz verilerin bir kopyasını indirebilirsiniz.</p>
+    <a class="btn btn-ghost" href="/hesap/verilerim">Verilerimi İndir</a>
+  </div>
+
+  <div class="card" style="border-color:#F2B8B2">
+    <h2 style="color:var(--red)"><%- icon('trash') %> Hesabımı sil</h2>
+    <p class="small">Hesabınız, ilanlarınız, mesajlarınız ve favorileriniz kalıcı olarak silinir. Bu işlem geri alınamaz. Kanunen saklanması gereken erişim kayıtları yasal süre sonunda silinir.</p>
+    <form method="post" action="/hesap/sil" data-confirm="Hesabınız kalıcı olarak silinecek. Emin misiniz?">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <div class="field"><label for="delpw">Onay için şifreniz</label><input id="delpw" name="password" type="password" autocomplete="current-password" required></div>
+      <button class="btn btn-danger" type="submit">Hesabımı Kalıcı Olarak Sil</button>
+    </form>
+  </div>
+</div>
+<%- include('../partials/footer') %>

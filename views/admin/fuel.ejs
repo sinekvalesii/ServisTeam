@@ -1,0 +1,22 @@
+<%- include('_top') %>
+<h1>Akaryakıt Fiyatları</h1>
+<p class="muted">Fiyatlar 2 saatte bir otomatik çekilir (hasanadiguzel.com.tr akaryakıt API). API LPG fiyatı vermediğinden LPG'yi buradan manuel girin; manuel LPG 10 gün boyunca gösterilir.</p>
+<form method="post" style="margin-bottom:16px"><input type="hidden" name="_csrf" value="<%= csrf %>"><input type="hidden" name="action" value="refresh"><button class="btn btn-primary"><%- icon('refresh') %> Şimdi API'den güncelle</button></form>
+<div class="table-wrap"><table class="t">
+  <thead><tr><th>Bölge</th><th>Benzin</th><th>Motorin</th><th>LPG</th><th>Kaynak</th><th>Zaman</th></tr></thead>
+  <tbody><% for (const f of latest) { %><tr><td><%= f.label %></td><td><%= fmtNum(f.benzin) %></td><td><%= fmtNum(f.motorin) %></td><td><%= fmtNum(f.lpg) %></td><td><%= f.source %></td><td class="small"><%= fmtDateTime(f.fetched_at) %></td></tr><% } %>
+  <% if (!latest.length) { %><tr><td colspan="6" class="muted">Henüz fiyat yok.</td></tr><% } %></tbody>
+</table></div>
+<form method="post" class="card" style="margin-top:16px">
+  <input type="hidden" name="_csrf" value="<%= csrf %>"><input type="hidden" name="action" value="manual">
+  <h2 style="font-size:1.05rem">Manuel fiyat gir</h2>
+  <div class="grid-2">
+    <div class="field"><label for="region">Bölge</label><select id="region" name="region"><% for (const [k, v] of Object.entries(tax.FUEL_REGIONS)) { %><option value="<%= k %>"><%= v %></option><% } %></select></div>
+    <div class="field"><label for="benzin">Benzin (₺/lt)</label><input id="benzin" name="benzin" inputmode="decimal"></div>
+    <div class="field"><label for="motorin">Motorin (₺/lt)</label><input id="motorin" name="motorin" inputmode="decimal"></div>
+    <div class="field"><label for="lpg">LPG (₺/lt)</label><input id="lpg" name="lpg" inputmode="decimal"></div>
+  </div>
+  <p class="small muted">Boş bıraktığınız yakıt türü için o bölgede önceki değer gösterilmez; üç değeri birlikte girin.</p>
+  <button class="btn btn-primary">Kaydet</button>
+</form>
+<%- include('_bottom') %>

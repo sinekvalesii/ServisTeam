@@ -1,0 +1,27 @@
+<%- include('_top') %>
+<h1>Yönetim Paneli</h1>
+<div class="stats">
+  <a class="stat" href="/yonetim/kullanicilar" style="text-decoration:none"><small>Üye</small><strong><%= s.users %></strong><div class="small muted">+<%= s.users_7d %> son 7 gün</div></a>
+  <a class="stat" href="/yonetim/ilanlar" style="text-decoration:none"><small>Aktif ilan</small><strong><%= s.active %></strong><div class="small muted">+<%= s.listings_7d %> son 7 gün</div></a>
+  <a class="stat" href="/yonetim/ilanlar?durum=pending" style="text-decoration:none;<%= s.pending ? 'border-color:var(--amber)' : '' %>"><small>Onay bekleyen ilan</small><strong><%= s.pending %></strong></a>
+  <a class="stat" href="/yonetim/sikayetler" style="text-decoration:none;<%= s.reports ? 'border-color:var(--red)' : '' %>"><small>Açık şikâyet</small><strong><%= s.reports %></strong></a>
+  <a class="stat" href="/yonetim/belgeler" style="text-decoration:none;<%= s.verifs ? 'border-color:var(--amber)' : '' %>"><small>Bekleyen belge</small><strong><%= s.verifs %></strong></a>
+  <div class="stat"><small>Mesaj (24 saat)</small><strong><%= s.msgs_24h %></strong></div>
+  <a class="stat" href="/yonetim/ilanlar?durum=featured" style="text-decoration:none"><small>Öne çıkan ilan</small><strong><%= s.featured %></strong></a>
+</div>
+<div class="grid-2" style="margin-top:20px">
+  <div class="card"><h2 style="font-size:1.05rem">İllere göre aktif ilan</h2>
+    <% if (!byCity.length) { %><p class="muted small">Veri yok.</p><% } %>
+    <% for (const r of byCity) { %><div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line)"><span><%= geo.cityName(r.city_code) %></span><strong><%= r.n %></strong></div><% } %>
+  </div>
+  <div class="card"><h2 style="font-size:1.05rem">Türe göre aktif ilan</h2>
+    <% if (!byCat.length) { %><p class="muted small">Veri yok.</p><% } %>
+    <% for (const r of byCat) { %><div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line)"><span><%= tax.CATEGORIES[r.category]?.label %></span><strong><%= r.n %></strong></div><% } %>
+  </div>
+</div>
+<div class="card" style="margin-top:16px"><h2 style="font-size:1.05rem">Son işlemler</h2>
+  <div class="table-wrap" style="border:0"><table class="t"><tbody>
+  <% for (const l of logs) { %><tr><td class="small"><%= fmtDateTime(l.created_at) %></td><td><%= l.display_name || '—' %></td><td><code><%= l.action %></code></td><td class="small"><%= l.target_type || '' %> <%= l.target_id || '' %></td></tr><% } %>
+  </tbody></table></div>
+</div>
+<%- include('_bottom') %>

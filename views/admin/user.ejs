@@ -1,0 +1,49 @@
+<%- include('_top') %>
+<a class="btn btn-quiet" href="/yonetim/kullanicilar"><%- icon('back') %> Kullanıcılar</a>
+<div class="card">
+  <h1><%= u.display_name %> <span class="tag <%= u.status === 'active' ? 'tag-green' : 'tag-red' %>"><%= u.status %></span></h1>
+  <div class="facts">
+    <div><small>Üye no</small><strong><%= u.id %></strong></div>
+    <div><small>E-posta</small><strong><%= u.email || '—' %></strong> <%= u.email_verified_at ? '✓' : '(doğrulanmamış)' %></div>
+    <div><small>Telefon</small><strong><%= u.phone ? '0' + u.phone.slice(3) : '—' %></strong></div>
+    <div><small>Hesap türü</small><strong><%= tax.ACCOUNT_TYPES[u.account_type]?.label || '—' %></strong></div>
+    <div><small>Firma</small><strong><%= u.company_name || '—' %></strong></div>
+    <div><small>Konum</small><strong><%= geo.cityName(u.city_code) %> <%= u.district || '' %></strong></div>
+    <div><small>Kayıt</small><strong><%= fmtDateTime(u.created_at) %></strong></div>
+    <div><small>Son giriş</small><strong><%= fmtDateTime(u.last_login_at) || '—' %></strong></div>
+    <div><small>Rol</small><strong><%= u.role %></strong></div>
+    <div><small>Ticari ileti izni</small><strong><%= u.consent_marketing_at ? 'Var (' + fmtDate(u.consent_marketing_at) + ')' : 'Yok' %></strong></div>
+  </div>
+  <% if (u.suspend_reason) { %><div class="alert alert-err"><%- icon('ban') %><div>Askı gerekçesi: <%= u.suspend_reason %></div></div><% } %>
+  <div class="btn-row">
+    <% if (u.status === 'active') { %>
+      <form method="post" class="inline-form" style="display:inline-flex;gap:6px" data-confirm="Kullanıcı askıya alınsın mı? Tüm aktif ilanları pasife düşer.">
+        <input type="hidden" name="_csrf" value="<%= csrf %>"><input type="hidden" name="action" value="suspend">
+        <input name="reason" placeholder="Gerekçe" style="min-height:42px;padding:6px 10px;width:200px"><button class="btn btn-danger btn-sm"><%- icon('ban') %> Askıya al</button></form>
+    <% } else if (u.status === 'suspended') { %>
+      <form method="post" class="inline-form"><input type="hidden" name="_csrf" value="<%= csrf %>"><input type="hidden" name="action" value="unsuspend"><button class="btn btn-green btn-sm">Askıyı kaldır</button></form>
+    <% } %>
+    <% if (!u.email_verified_at) { %><form method="post" class="inline-form"><input type="hidden" name="_csrf" value="<%= csrf %>"><input type="hidden" name="action" value="verify_email"><button class="btn btn-ghost btn-sm">E-postayı elle doğrula</button></form><% } %>
+    <% if (isAdmin) { %>
+      <form method="post" class="inline-form" style="display:inline-flex;gap:6px"><input type="hidden" name="_csrf" value="<%= csrf %>"><input type="hidden" name="action" value="role">
+        <select name="role" style="width:auto;min-height:42px;padding:4px 34px 4px 10px"><% for (const r of ['user','moderator','admin']) { %><option <%= u.role === r ? 'selected' : '' %>><%= r %></option><% } %></select>
+        <button class="btn btn-ghost btn-sm">Rolü kaydet</button></form>
+    <% } %>
+  </div>
+</div>
+<div class="grid-2" style="margin-top:16px">
+  <div class="card"><h2 style="font-size:1.05rem">İlanları</h2>
+    <% for (const l of listings) { %><div class="small" style="padding:6px 0;border-bottom:1px solid var(--line)"><a href="/ilan/<%= l.id %>">#<%= l.id %> <%= l.title %></a> <span class="tag tag-gray"><%= l.status %></span></div><% } %>
+    <% if (!listings.length) { %><p class="muted small">İlan yok.</p><% } %>
+  </div>
+  <div class="card"><h2 style="font-size:1.05rem">Belgeler ve araçlar</h2>
+    <% for (const v of verifs) { %><div class="small"><%= tax.DOC_TYPES[v.doc_type].label %> — <span class="tag"><%= v.status %></span> <%= fmtDate(v.created_at) %></div><% } %>
+    <% for (const v of vehicles) { %><div class="small"><%- icon('van') %> <%= tax.VEHICLE_TYPES[v.vehicle_type] %> <%= v.brand || '' %> · <%= v.capacity %> kişi</div><% } %>
+  </div>
+</div>
+<% if (reports.length) { %>
+<div class="card" style="margin-top:16px"><h2 style="font-size:1.05rem">İlgili şikâyetler</h2>
+  <% for (const r of reports) { %><div class="small"><a href="/yonetim/sikayetler/<%= r.id %>">#<%= r.id %></a> <%= tax.REPORT_REASONS[r.reason] || r.reason %> · <%= r.status %></div><% } %>
+</div>
+<% } %>
+<%- include('_bottom') %>

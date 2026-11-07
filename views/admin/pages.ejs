@@ -1,0 +1,20 @@
+<%- include('_top') %>
+<h1>Sayfalar</h1>
+<div class="card">
+  <% for (const p of pages) { %><div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line)"><a href="?s=<%= p.slug %>"><%= p.title %></a><span class="small muted">/sayfa/<%= p.slug %> · <%= fmtDate(p.updated_at) %></span></div><% } %>
+  <a class="btn btn-ghost btn-sm" href="?s=yeni" style="margin-top:10px"><%- icon('plus') %> Yeni sayfa</a>
+</div>
+<% if (edit || (typeof query !== 'undefined')) {} %>
+<% const E = edit || { slug: '', title: '', body_html: '' }; %>
+<form method="post" class="card" style="margin-top:16px">
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <h2 style="font-size:1.05rem"><%= edit ? 'Düzenle: ' + edit.title : 'Yeni sayfa' %></h2>
+  <div class="grid-2">
+    <div class="field"><label for="slug">Adres (sayfa/...)</label><input id="slug" name="slug" value="<%= E.slug %>" <%= edit ? 'readonly' : '' %> required></div>
+    <div class="field"><label for="title">Başlık</label><input id="title" name="title" value="<%= E.title %>" required></div>
+  </div>
+  <div class="field"><label for="body_html">İçerik (HTML)</label><textarea id="body_html" name="body_html" rows="18" style="font-family:monospace;font-size:.85rem"><%= E.body_html %></textarea>
+    <div class="hint">Kullanılabilir yer tutucular: {{SIRKET_UNVANI}}, {{SIRKET_ADRES}}, {{SIRKET_EPOSTA}}, {{SIRKET_KEP}}, {{SIRKET_MERSIS}}, {{SITE}} — .env dosyasındaki şirket bilgileriyle doldurulur.</div></div>
+  <button class="btn btn-primary">Kaydet</button>
+</form>
+<%- include('_bottom') %>

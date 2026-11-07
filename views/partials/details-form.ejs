@@ -1,0 +1,76 @@
+<% const T = type; const F = form; const E = errors; const has = (k, v) => Array.isArray(F[k]) ? F[k].includes(v) : F[k] === v; %>
+<% if (!['servis_firmasi','kurum'].includes(T)) { %>
+<div class="field">
+  <span class="label">Bireysel mi, firma adına mı?</span>
+  <div class="choices cols-2">
+    <label class="choice"><input type="radio" name="lister_kind" value="bireysel" <%= F.lister_kind !== 'firma' ? 'checked' : '' %>><span class="box"><%- icon('user') %><span><strong>Bireysel</strong><span>Kendi adıma</span></span></span></label>
+    <label class="choice"><input type="radio" name="lister_kind" value="firma" <%= F.lister_kind === 'firma' ? 'checked' : '' %>><span class="box"><%- icon('building') %><span><strong>Firma</strong><span>Şirket adına</span></span></span></label>
+  </div>
+</div>
+<% } %>
+<div class="field" data-company <%= (['servis_firmasi','kurum'].includes(T) || F.lister_kind === 'firma') ? '' : 'hidden' %>>
+  <label for="company_name"><%= T === 'kurum' ? 'Kurum / şirket adı' : 'Firma adı' %></label>
+  <input id="company_name" name="company_name" type="text" maxlength="120" value="<%= F.company_name || '' %>">
+  <% if (E.company_name) { %><div class="err-text"><%= E.company_name %></div><% } %>
+</div>
+<div class="grid-2">
+  <div class="field">
+    <label for="city_code">İl</label>
+    <select id="city_code" name="city_code" data-city required>
+      <option value="">İl seçin</option>
+      <% for (const c of geo.iller) { %><option value="<%= c.code %>" <%= F.city_code === c.code ? 'selected' : '' %>><%= c.name %></option><% } %>
+    </select>
+    <% if (E.city_code) { %><div class="err-text"><%= E.city_code %></div><% } %>
+  </div>
+  <div class="field">
+    <label for="district">İlçe <span class="opt">(isteğe bağlı)</span></label>
+    <select id="district" name="district" data-district data-selected="<%= F.district || '' %>">
+      <option value="">İlçe seçin</option>
+      <% if (F.city_code && geo.byCode[F.city_code]) { for (const d of geo.byCode[F.city_code].districts) { %><option <%= F.district === d ? 'selected' : '' %>><%= d %></option><% } } %>
+    </select>
+    <% if (E.district) { %><div class="err-text"><%= E.district %></div><% } %>
+  </div>
+</div>
+
+<% if (['sofor','arac_sahibi'].includes(T)) { %>
+<div class="field">
+  <span class="label">Ehliyet sınıflarınız</span>
+  <div class="pills"><% for (const c of tax.LICENSE_CLASSES) { %><label class="pill"><input type="checkbox" name="license_classes" value="<%= c %>" <%= has('license_classes', c) ? 'checked' : '' %>><span><%= c %></span></label><% } %></div>
+  <div class="hint">Minibüs için D1, otobüs/midibüs için D sınıfı gerekir.</div>
+  <% if (E.license_classes) { %><div class="err-text"><%= E.license_classes %></div><% } %>
+</div>
+<div class="field">
+  <span class="label">SRC belgeleriniz <span class="opt">(isteğe bağlı)</span></span>
+  <div class="pills"><% for (const c of tax.SRC_TYPES) { %><label class="pill"><input type="checkbox" name="src" value="<%= c %>" <%= has('src', c) ? 'checked' : '' %>><span><%= c %></span></label><% } %></div>
+  <div class="hint">Personel ve öğrenci servisi için genellikle SRC2 (yurtiçi yolcu) istenir.</div>
+</div>
+<label class="check"><input type="checkbox" name="psikoteknik" value="1" <%= F.psikoteknik ? 'checked' : '' %>> <span>Geçerli psikoteknik belgem var</span></label>
+<% } %>
+<% if (['sofor','arac_sahibi','rehber_personel'].includes(T)) { %>
+<div class="field">
+  <label for="experience_years">Kaç yıllık deneyiminiz var?</label>
+  <input id="experience_years" name="experience_years" type="number" inputmode="numeric" min="0" max="60" value="<%= F.experience_years ?? '' %>">
+</div>
+<label class="check"><input type="checkbox" name="available" value="1" <%= F.available ? 'checked' : '' %>> <span>Şu anda yeni iş tekliflerine açığım</span></label>
+<% } %>
+<% if (T === 'servis_firmasi') { %>
+<div class="field">
+  <label for="fleet_size">Filonuzdaki araç sayısı</label>
+  <input id="fleet_size" name="fleet_size" type="number" inputmode="numeric" min="1" value="<%= F.fleet_size ?? '' %>">
+</div>
+<div class="field">
+  <span class="label">Verdiğiniz hizmetler</span>
+  <div class="pills"><% for (const [k, v] of Object.entries(tax.SERVICE_TYPES)) { %><label class="pill"><input type="checkbox" name="services" value="<%= k %>" <%= has('services', k) ? 'checked' : '' %>><span><%= v %></span></label><% } %></div>
+</div>
+<% } %>
+<% if (T === 'kurum') { %>
+<div class="grid-2">
+  <div class="field"><label for="sector">Sektörünüz</label><input id="sector" name="sector" type="text" maxlength="60" value="<%= F.sector || '' %>" placeholder="Örn. Tekstil, Okul, Lojistik"></div>
+  <div class="field"><label for="staff_count">Servis kullanacak kişi sayısı</label><input id="staff_count" name="staff_count" type="number" inputmode="numeric" min="1" value="<%= F.staff_count ?? '' %>"></div>
+</div>
+<% } %>
+<div class="field">
+  <label for="about">Kendinizi kısaca tanıtın <span class="opt">(isteğe bağlı)</span></label>
+  <textarea id="about" name="about" maxlength="600" rows="4" placeholder="Örn. 12 yıldır personel servisinde çalışıyorum, Esenyurt–İkitelli hattını iyi bilirim."><%= F.about || '' %></textarea>
+  <div class="hint">Telefon numarası, adres gibi bilgileri buraya yazmayın.</div>
+</div>

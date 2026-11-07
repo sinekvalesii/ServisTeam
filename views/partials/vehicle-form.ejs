@@ -1,0 +1,34 @@
+<% const F = form; const E = errors; const feats = Array.isArray(F.features) ? F.features : (F.features ? [F.features] : []); %>
+<div class="field">
+  <label for="vehicle_type">Araç tipi</label>
+  <select id="vehicle_type" name="vehicle_type" required>
+    <option value="">Seçin</option>
+    <% for (const [k, v] of Object.entries(tax.VEHICLE_TYPES)) { %><option value="<%= k %>" <%= F.vehicle_type === k ? 'selected' : '' %>><%= v %></option><% } %>
+  </select>
+  <% if (E.vehicle_type) { %><div class="err-text"><%= E.vehicle_type %></div><% } %>
+</div>
+<div class="grid-2">
+  <div class="field"><label for="brand">Marka <span class="opt">(isteğe bağlı)</span></label><input id="brand" name="brand" type="text" maxlength="40" value="<%= F.brand || '' %>" placeholder="Örn. Mercedes"></div>
+  <div class="field"><label for="model">Model <span class="opt">(isteğe bağlı)</span></label><input id="model" name="model" type="text" maxlength="60" value="<%= F.model || '' %>" placeholder="Örn. Sprinter 516"></div>
+</div>
+<div class="grid-2">
+  <div class="field"><label for="model_year">Model yılı</label><input id="model_year" name="model_year" type="number" inputmode="numeric" min="1980" max="<%= new Date().getFullYear() + 1 %>" value="<%= F.model_year || '' %>"></div>
+  <div class="field">
+    <label for="capacity">Yolcu kapasitesi</label>
+    <input id="capacity" name="capacity" type="number" inputmode="numeric" min="1" max="90" value="<%= F.capacity || '' %>" placeholder="Örn. 16">
+    <div class="hint">Şoför hariç koltuk sayısı.</div>
+    <% if (E.capacity) { %><div class="err-text"><%= E.capacity %></div><% } %>
+  </div>
+</div>
+<div class="field">
+  <label for="plate_city">Plaka ili <span class="opt">(isteğe bağlı)</span></label>
+  <select id="plate_city" name="plate_city">
+    <option value="">Seçin</option>
+    <% for (const c of geo.iller) { %><option value="<%= c.code %>" <%= F.plate_city === c.code ? 'selected' : '' %>><%= c.code %> — <%= c.name %></option><% } %>
+  </select>
+  <div class="hint"><%- icon('lock') %> Gizliliğiniz için plakanın tamamını istemiyoruz.</div>
+</div>
+<div class="field">
+  <span class="label">Araç özellikleri</span>
+  <div class="pills"><% for (const [k, v] of Object.entries(tax.VEHICLE_FEATURES)) { %><label class="pill"><input type="checkbox" name="features" value="<%= k %>" <%= feats.includes(k) ? 'checked' : '' %>><span><%= v %></span></label><% } %></div>
+</div>

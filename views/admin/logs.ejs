@@ -1,0 +1,17 @@
+<%- include('_top') %>
+<h1>İşlem Kayıtları</h1>
+<form method="get" action="/yonetim/kayitlar/trafik.csv" class="card">
+  <h2 style="font-size:1.05rem"><%- icon('file') %> 5651 trafik kaydı dışa aktar</h2>
+  <p class="small muted">Yalnızca yetkili adli/idari makam talebi üzerine kullanın. Her dışa aktarım kayıt altına alınır.</p>
+  <div class="grid-2">
+    <div class="field"><label for="from">Başlangıç</label><input id="from" type="date" name="from" required></div>
+    <div class="field"><label for="to">Bitiş</label><input id="to" type="date" name="to" required></div>
+  </div>
+  <div class="field"><label for="uid">Üye no <span class="opt">(isteğe bağlı)</span></label><input id="uid" name="user" inputmode="numeric"></div>
+  <button class="btn btn-ghost">CSV indir</button>
+</form>
+<div class="table-wrap" style="margin-top:16px"><table class="t">
+  <thead><tr><th>Zaman</th><th>Yetkili</th><th>İşlem</th><th>Hedef</th><th>IP</th></tr></thead>
+  <tbody><% for (const l of logs) { %><tr><td class="small"><%= fmtDateTime(l.created_at) %></td><td><%= l.display_name || '—' %></td><td><code><%= l.action %></code></td><td class="small"><%= l.target_type || '' %> <%= l.target_id || '' %></td><td class="small"><%= l.ip %></td></tr><% } %></tbody>
+</table></div>
+<%- include('_bottom') %>

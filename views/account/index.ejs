@@ -1,0 +1,48 @@
+<%- include('../partials/header') %>
+<% const t = tax.ACCOUNT_TYPES[user.account_type] || {}; const approved = docs.filter(d => d.status === 'approved'); %>
+<div class="layout">
+  <div>
+    <div class="card">
+      <div class="owner">
+        <div class="avatar"><%= initials(user.display_name) %></div>
+        <div>
+          <h1 style="margin:0;font-size:1.35rem"><%= user.display_name %></h1>
+          <div class="muted"><%= t.label %><%= user.company_name ? ' · ' + user.company_name : '' %> · <%= geo.cityName(user.city_code) %><%= user.district ? ' / ' + user.district : '' %></div>
+          <div class="badges">
+            <span class="tag tag-green"><%- icon('mail') %> E-posta doğrulandı</span>
+            <% for (const d of approved) { %><span class="tag tag-green"><%- icon('shield') %> <%= tax.DOC_TYPES[d.doc_type].short %></span><% } %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="quick" style="margin-top:16px">
+      <a href="/hesap/ilanlarim"><%- icon('list') %>İlanlarım<small><%= counts.active %> aktif · <%= counts.passive %> pasif</small></a>
+      <a href="/hesap/favoriler"><%- icon('heart') %>Favorilerim<small><%= counts.favs %> ilan</small></a>
+      <a href="/mesajlar"><%- icon('chat') %>Mesajlarım<small><%= unread ? unread + ' okunmamış' : 'Tümü okundu' %></small></a>
+      <a href="/hesap/belgeler"><%- icon('shield') %>Belge Doğrulama<small><%= approved.length ? approved.length + ' belge onaylı' : '"Belgeli" rozeti alın' %></small></a>
+      <a href="/hesap/profil"><%- icon('edit') %>Profil Bilgilerim<small>Bilgilerinizi güncelleyin</small></a>
+      <a href="/hesap/araclar"><%- icon('van') %>Araçlarım<small>Araç ekle / çıkar</small></a>
+      <a href="/hesap/ayarlar"><%- icon('settings') %>Hesap Ayarları<small>Şifre, izinler, hesap silme</small></a>
+      <a href="/ilan-ver"><%- icon('plus') %>Yeni İlan Ver<small>Ücretsiz, 14 gün yayında</small></a>
+    </div>
+    <form method="post" action="/cikis" style="margin-top:20px">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <button class="btn btn-danger btn-block" type="submit"><%- icon('logout') %> Çıkış Yap</button>
+    </form>
+  </div>
+  <aside>
+    <% if (!approved.length && t.docs && t.docs.length) { %>
+    <div class="card" style="border-color:var(--amber)">
+      <h2 style="font-size:1.1rem"><%- icon('shield') %> Belgeli rozeti alın</h2>
+      <p class="small">Belgesi doğrulanmış kişilerin ilanlarına <strong>daha çok mesaj</strong> gelir. e-Devlet barkodu ile 2 dakikada başvurun.</p>
+      <a class="btn btn-accent btn-block" href="/hesap/belgeler">Belge Doğrula</a>
+    </div>
+    <% } %>
+    <div class="card">
+      <h2 style="font-size:1.1rem"><%- icon('info') %> Güvenlik ipucu</h2>
+      <p class="small" style="margin:0">Servis Team sizden asla şifre, kart bilgisi veya "kapora" istemez. Bunu isteyen mesajları <strong>şikâyet edin</strong>.</p>
+    </div>
+  </aside>
+</div>
+<%- include('../partials/footer') %>

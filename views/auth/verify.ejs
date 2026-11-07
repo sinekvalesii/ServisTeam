@@ -1,0 +1,23 @@
+<%- include('../partials/header') %>
+<div class="narrow">
+  <div class="card">
+    <div class="steps" aria-hidden="true"><span class="done"></span><span></span><span></span><span></span></div>
+    <h1>E-postanızı doğrulayın</h1>
+    <p><strong><%= email %></strong> adresine 6 haneli bir kod gönderdik. Kodu aşağıya yazın.</p>
+    <p class="small muted">Gelmediyse "Spam" veya "Önemsiz" klasörüne bakın. Kod 5 dakika geçerlidir.</p>
+    <% if (error) { %><div class="alert alert-err" role="alert"><%- icon('warn') %><div><%= error %></div></div><% } %>
+    <form method="post" action="/dogrula">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <div class="field">
+        <label for="code">Doğrulama kodu</label>
+        <input id="code" name="code" class="input-otp" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="\d{6}" required autofocus>
+      </div>
+      <button class="btn btn-primary btn-block" type="submit">Doğrula</button>
+    </form>
+    <form method="post" action="/dogrula/tekrar" style="margin-top:12px">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <button class="btn btn-quiet btn-block" type="submit"><%- icon('refresh') %> Kodu tekrar gönder</button>
+    </form>
+  </div>
+</div>
+<%- include('../partials/footer') %>

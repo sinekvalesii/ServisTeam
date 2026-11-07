@@ -1,0 +1,48 @@
+<%- include('../partials/header') %>
+<div class="narrow">
+  <div class="card">
+    <div class="steps" aria-hidden="true"><span class="done"></span><span class="<%= step >= 1 ? 'done' : '' %>"></span><span class="<%= step >= 2 ? 'done' : '' %>"></span><span class="<%= step >= 3 ? 'done' : '' %>"></span></div>
+    <form method="post" action="/hesap/kurulum" novalidate>
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <input type="hidden" name="step" value="<%= step %>">
+    <% if (step === 1) { %>
+      <div class="step-label">Adım 1 / 3</div>
+      <h1>Sizi en iyi hangisi anlatıyor?</h1>
+      <p class="muted">Seçiminize göre size uygun ilanları ve formları göstereceğiz. Sonradan değiştirebilirsiniz.</p>
+      <% if (errors.account_type) { %><div class="alert alert-err" role="alert"><%- icon('warn') %><div><%= errors.account_type %></div></div><% } %>
+      <div class="choices">
+        <% for (const [k, t] of Object.entries(tax.ACCOUNT_TYPES)) { %>
+        <label class="choice"><input type="radio" name="account_type" value="<%= k %>" <%= form.account_type === k ? 'checked' : '' %> required>
+          <span class="box"><%- icon(t.icon) %><span><strong><%= t.label %></strong><span><%= t.desc %></span></span></span></label>
+        <% } %>
+      </div>
+      <button class="btn btn-primary btn-block" type="submit" style="margin-top:20px">Devam <%- icon('arrow') %></button>
+    <% } else if (step === 2) { %>
+      <div class="step-label">Adım 2 / 3 · <%= tax.ACCOUNT_TYPES[form.account_type].label %></div>
+      <h1>Bilgileriniz</h1>
+      <p class="muted">Bu bilgiler profilinizde ve ilanlarınızda görünür. Telefon numaranız gizli kalır.</p>
+      <%- include('../partials/details-form', { type: form.account_type, form, errors }) %>
+      <div class="btn-row" style="margin-top:10px">
+        <a class="btn btn-ghost" href="/hesap/kurulum?adim=1"><%- icon('back') %> Geri</a>
+        <button class="btn btn-primary" type="submit" style="flex:1">Devam <%- icon('arrow') %></button>
+      </div>
+    <% } else { const need = tax.ACCOUNT_TYPES[form.account_type].needsVehicle; %>
+      <div class="step-label">Adım 3 / 3</div>
+      <h1>Araç bilgileri</h1>
+      <% if (vehicles.length) { %>
+        <div class="alert alert-ok"><%- icon('check') %><div><strong><%= vehicles.length %> araç eklendi:</strong>
+          <%= vehicles.map(v => (tax.VEHICLE_TYPES[v.vehicle_type] || '').split(' (')[0] + (v.brand ? ' ' + v.brand : '') + ' (' + v.capacity + ' kişilik)').join(', ') %></div></div>
+      <% } %>
+      <p class="muted"><%= need ? 'Aracınızın bilgilerini girin. İlanlarınızda kullanılır.' : 'Filonuzdaki araçları ekleyebilirsiniz. Bu adımı şimdilik atlayabilirsiniz.' %></p>
+      <%- include('../partials/vehicle-form', { form: vehicles.length ? {} : form, errors }) %>
+      <div class="stack" style="margin-top:10px">
+        <button class="btn btn-primary btn-block" type="submit">Aracı Kaydet ve Bitir</button>
+        <button class="btn btn-ghost btn-block" type="submit" name="add_more" value="1"><%- icon('plus') %> Kaydet, bir araç daha ekle</button>
+        <% if (vehicles.length) { %><button class="btn btn-quiet btn-block" type="submit" name="done" value="1" formnovalidate>Araç eklemeyi bitir</button>
+        <% } else if (!need) { %><button class="btn btn-quiet btn-block" type="submit" name="skip" value="1" formnovalidate>Bu adımı atla</button><% } %>
+      </div>
+    <% } %>
+    </form>
+  </div>
+</div>
+<%- include('../partials/footer') %>

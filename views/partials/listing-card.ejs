@@ -1,0 +1,29 @@
+<% const L = l; const cat = tax.CATEGORIES[L.category] || {}; const price = fmtPrice(L); const featured = L.featured_until && new Date(L.featured_until) > new Date(); %>
+<article class="lcard <%= featured ? 'featured' : '' %>">
+  <a href="/ilan/<%= L.id %>" class="thumb" tabindex="-1" aria-hidden="true">
+    <% if (L.photos && L.photos.length) { %><img src="<%= L.photos[0] %>" alt="" loading="lazy" width="132" height="112"><% } else { %><%- icon(cat.icon || 'van') %><% } %>
+  </a>
+  <div>
+    <div class="tags">
+      <% if (featured) { %><span class="tag tag-amber"><%- icon('star') %> Öne Çıkan</span><% } %>
+      <span class="tag"><%= cat.label %></span>
+      <% if (L.owner_verified) { %><span class="tag tag-green"><%- icon('shield') %> Belgeli</span><% } %>
+      <% if (L.status && L.status !== 'active' && typeof showStatus !== 'undefined') { %><span class="tag tag-gray"><%= {passive:'Pasif',pending:'Onay bekliyor',rejected:'Reddedildi'}[L.status] || L.status %></span><% } %>
+    </div>
+    <h3><a href="/ilan/<%= L.id %>" style="color:inherit;text-decoration:none"><%= L.title %></a></h3>
+    <div class="meta">
+      <span><%- icon('pin') %><%= geo.cityName(L.city_code) %><%= L.district ? ' / ' + L.district : '' %></span>
+      <% if (L.vehicle_type) { %><span><%- icon('van') %><%= (tax.VEHICLE_TYPES[L.vehicle_type] || '').split(' (')[0] %></span><% } %>
+      <% if (L.route_from && L.route_to) { %><span><%- icon('route') %><%= L.route_from %> → <%= L.route_to %></span><% } %>
+      <span><%- icon('clock') %><%= timeAgo(L.published_at || L.created_at) %></span>
+    </div>
+    <% if (price) { %><div class="price"><%= price %></div><% } else { %><div class="price hidden">Ücret görüşülür</div><% } %>
+  </div>
+  <% if (typeof hideFav === 'undefined') { %>
+  <div class="fav">
+    <button type="button" class="fav-btn <%= L.is_fav ? 'on' : '' %>" data-fav="<%= L.id %>" aria-pressed="<%= L.is_fav ? 'true' : 'false' %>" aria-label="Favorilere ekle">
+      <%- icon(L.is_fav ? 'heart-fill' : 'heart') %>
+    </button>
+  </div>
+  <% } %>
+</article>

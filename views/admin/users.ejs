@@ -1,0 +1,24 @@
+<%- include('_top') %>
+<h1>Kullanıcılar</h1>
+<nav class="tabs">
+  <a href="?" class="<%= !durum ? 'on' : '' %>">Tümü</a>
+  <a href="?durum=suspended" class="<%= durum === 'suspended' ? 'on' : '' %>">Askıdakiler</a>
+  <a href="?durum=staff" class="<%= durum === 'staff' ? 'on' : '' %>">Yetkililer</a>
+</nav>
+<form method="get" style="display:flex;gap:8px;margin-bottom:14px"><input type="search" name="q" value="<%= q %>" placeholder="Ad, e-posta, telefon, firma veya üye no"><button class="btn btn-primary">Ara</button></form>
+<div class="table-wrap"><table class="t">
+  <thead><tr><th>No</th><th>Ad</th><th>Tür</th><th>İl</th><th>Durum</th><th>Kayıt</th></tr></thead>
+  <tbody>
+  <% for (const u of rows) { %>
+    <tr>
+      <td><%= u.id %></td>
+      <td><a href="/yonetim/kullanicilar/<%= u.id %>"><strong><%= u.display_name %></strong></a><div class="small muted"><%= u.email %></div></td>
+      <td class="small"><%= tax.ACCOUNT_TYPES[u.account_type]?.label || '—' %><%= u.company_name ? ' · ' + u.company_name : '' %></td>
+      <td class="small"><%= geo.cityName(u.city_code) %></td>
+      <td><span class="tag <%= u.status === 'active' ? 'tag-green' : 'tag-red' %>"><%= u.status === 'active' ? 'Aktif' : 'Askıda' %></span><% if (u.role !== 'user') { %> <span class="tag tag-amber"><%= u.role %></span><% } %><% if (!u.email_verified_at) { %> <span class="tag tag-gray">Doğrulanmamış</span><% } %></td>
+      <td class="small"><%= fmtDate(u.created_at) %></td>
+    </tr>
+  <% } %>
+  </tbody>
+</table></div>
+<%- include('_bottom') %>

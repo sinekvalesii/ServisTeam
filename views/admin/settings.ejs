@@ -1,0 +1,18 @@
+<%- include('_top') %>
+<h1>Site Ayarları</h1>
+<form method="post" class="card">
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <div class="field"><span class="label">İlan yayın modu</span>
+    <div class="choices cols-2">
+      <label class="choice"><input type="radio" name="moderation" value="post" <%= s.moderation !== 'pre' ? 'checked' : '' %>><span class="box"><span><strong>Anında yayın</strong><span>İlan hemen yayına girer; şikâyet ve kontrolle denetlenir.</span></span></span></label>
+      <label class="choice"><input type="radio" name="moderation" value="pre" <%= s.moderation === 'pre' ? 'checked' : '' %>><span class="box"><span><strong>Ön onaylı</strong><span>Her ilan admin onayından sonra yayına girer.</span></span></span></label>
+    </div></div>
+  <div class="field"><label for="announcement">Site duyurusu <span class="opt">(boş = gösterilmez)</span></label><input id="announcement" name="announcement" maxlength="300" value="<%= s.announcement %>"></div>
+  <div class="field"><label for="banned_words">Şüpheli mesaj kelimeleri <span class="opt">(virgülle ayırın)</span></label><input id="banned_words" name="banned_words" value="<%= (s.banned_words || []).join(', ') %>">
+    <div class="hint">Bu kelimeleri veya IBAN içeren mesajlar alıcıya "ödeme talebi içerebilir" uyarısıyla gösterilir.</div></div>
+  <div class="field"><label for="traffic_log_days">Trafik kaydı saklama süresi (gün)</label><input id="traffic_log_days" name="traffic_log_days" type="number" min="365" max="730" value="<%= s.traffic_log_days %>">
+    <div class="hint">5651 sayılı Kanun: yer sağlayıcılar trafik bilgisini 1–2 yıl saklar.</div></div>
+  <label class="check"><input type="checkbox" name="maintenance" value="1" <%= s.maintenance ? 'checked' : '' %>> <span><strong>Bakım modu</strong> — site ziyaretçilere kapanır, yöneticiler erişebilir.</span></label>
+  <button class="btn btn-primary">Kaydet</button>
+</form>
+<%- include('_bottom') %>

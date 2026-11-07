@@ -1,0 +1,13 @@
+<%- include('partials/header') %>
+<div class="narrow">
+  <div class="card center">
+    <%- icon('warn', '') %>
+    <h1><%= title %></h1>
+    <p><%= message %></p>
+    <div class="btn-row" style="justify-content:center">
+      <a class="btn btn-primary" href="/"><%- icon('home') %> Ana sayfaya dön</a>
+      <a class="btn btn-ghost" href="/ilanlar">İlanlara bak</a>
+    </div>
+  </div>
+</div>
+<%- include('partials/footer') %>

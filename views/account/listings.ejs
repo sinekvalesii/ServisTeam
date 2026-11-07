@@ -1,0 +1,33 @@
+<%- include('../partials/header') %>
+<div class="section-head"><h1>İlanlarım</h1><a class="btn btn-accent btn-sm" href="/ilan-ver"><%- icon('plus') %> Yeni İlan</a></div>
+<nav class="tabs" aria-label="İlan durumu">
+  <a href="?durum=aktif" class="<%= tab === 'aktif' ? 'on' : '' %>">Yayında (<%= counts.a %>)</a>
+  <a href="?durum=pasif" class="<%= tab === 'pasif' ? 'on' : '' %>">Süresi dolan (<%= counts.p %>)</a>
+  <a href="?durum=bekleyen" class="<%= tab === 'bekleyen' ? 'on' : '' %>">Onay bekleyen (<%= counts.b %>)</a>
+</nav>
+<% if (tab === 'pasif') { %><div class="alert alert-info"><%- icon('info') %><div>İlanlar yayına alındıktan <strong>14 gün sonra</strong> otomatik olarak pasife düşer. "Yeniden Yayınla" ile tek tıkla 14 gün daha yayına alabilirsiniz.</div></div><% } %>
+<% if (!listings.length) { %>
+  <div class="empty"><%- icon('list') %><p>Bu bölümde ilanınız yok.</p><a class="btn btn-primary" href="/ilan-ver">İlan Ver</a></div>
+<% } %>
+<div class="list">
+<% for (const l of listings) { %>
+  <div class="card" style="padding:14px">
+    <%- include('../partials/listing-card', { l, hideFav: true, showStatus: true }) %>
+    <div class="small muted" style="margin:10px 0">
+      <% if (l.status === 'active') { %><%- icon('clock') %> <strong><%= daysLeft(l.expires_at) %> gün</strong> sonra pasife düşecek · <% } %>
+      <%- icon('eye') %> <%= l.view_count %> görüntülenme · <%- icon('heart') %> <%= l.fav_count %> favori
+      <% if (l.status === 'rejected' && l.reject_reason) { %><br><span style="color:var(--red)">Red gerekçesi: <%= l.reject_reason %></span><% } %>
+    </div>
+    <div class="btn-row">
+      <a class="btn btn-ghost btn-sm" href="/ilan/<%= l.id %>/duzenle"><%- icon('edit') %> Düzenle</a>
+      <% if (l.status === 'passive') { %>
+        <form method="post" action="/ilan/<%= l.id %>/yeniden-yayinla" class="inline-form"><input type="hidden" name="_csrf" value="<%= csrf %>"><button class="btn btn-green btn-sm" type="submit"><%- icon('refresh') %> Yeniden Yayınla</button></form>
+      <% } else if (l.status === 'active') { %>
+        <form method="post" action="/ilan/<%= l.id %>/pasife-al" class="inline-form"><input type="hidden" name="_csrf" value="<%= csrf %>"><button class="btn btn-ghost btn-sm" type="submit">Yayından Kaldır</button></form>
+      <% } %>
+      <form method="post" action="/ilan/<%= l.id %>/sil" class="inline-form" data-confirm="Bu ilan kalıcı olarak silinecek. Emin misiniz?"><input type="hidden" name="_csrf" value="<%= csrf %>"><button class="btn btn-danger btn-sm" type="submit"><%- icon('trash') %> Sil</button></form>
+    </div>
+  </div>
+<% } %>
+</div>
+<%- include('../partials/footer') %>

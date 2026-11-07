@@ -1,0 +1,75 @@
+<%- include('partials/header') %>
+<% if (deleted) { %><div class="alert alert-ok"><%- icon('check') %><div>Hesabınız ve verileriniz silindi. Bizi tercih ettiğiniz için teşekkür ederiz.</div></div><% } %>
+
+<section class="hero">
+  <h1>Servis işi arayan da, servis arayan da burada.</h1>
+  <p>Şoför, servis firması, araç sahibi ve servis arayanlar için ücretsiz ilan sitesi.</p>
+  <form class="search-box" method="get" action="/ilanlar" role="search">
+    <label class="sr-only" for="hq">Ne arıyorsunuz?</label>
+    <input id="hq" name="q" type="search" placeholder="Ne arıyorsunuz? Örn. D1 şoför, Esenyurt">
+    <label class="sr-only" for="hil">İl</label>
+    <select id="hil" name="il">
+      <option value="tum">Tüm Türkiye</option>
+      <% for (const c of geo.iller) { %><option value="<%= c.code %>" <%= locCode === c.code ? 'selected' : '' %>><%= c.name %></option><% } %>
+    </select>
+    <button class="btn btn-accent" type="submit"><%- icon('search') %> Ara</button>
+  </form>
+</section>
+
+<section class="section" aria-labelledby="quick-title">
+  <h2 id="quick-title" class="sr-only">Hızlı erişim</h2>
+  <div class="quick">
+    <a href="/ilanlar?kategori=sofor_ariyorum"><%- icon('driver') %>Şoför Arayanlar<small><%= catCount.sofor_ariyorum || 0 %> ilan · İş bulun</small></a>
+    <a href="/ilanlar?kategori=is_ariyorum"><%- icon('briefcase') %>İş Arayan Şoförler<small><%= catCount.is_ariyorum || 0 %> ilan · Şoför bulun</small></a>
+    <a href="/ilanlar?kategori=servis_ariyorum"><%- icon('search') %>Servis Arayanlar<small><%= catCount.servis_ariyorum || 0 %> ilan · Müşteri bulun</small></a>
+    <a href="/ilanlar?kategori=servis_veriyorum"><%- icon('bus') %>Servis Firmaları<small><%= catCount.servis_veriyorum || 0 %> ilan · Servis bulun</small></a>
+    <a href="/ilanlar?kategori=aracima_is"><%- icon('van') %>Aracıyla İş Arayanlar<small><%= catCount.aracima_is || 0 %> ilan</small></a>
+    <a href="/ilanlar?kategori=arac_ariyorum"><%- icon('handshake') %>Araç Arayanlar<small><%= catCount.arac_ariyorum || 0 %> ilan</small></a>
+    <a href="/ilanlar?kategori=rehber_ariyorum"><%- icon('guide') %>Rehber Personel<small><%= (catCount.rehber_ariyorum || 0) + (catCount.rehber_is || 0) %> ilan</small></a>
+    <a href="/ilanlar?kategori=hat_devri"><%- icon('route') %>Hat / İş Devri<small><%= catCount.hat_devri || 0 %> ilan</small></a>
+  </div>
+</section>
+
+<%- include('partials/ad', { slot: slots.home_top }) %>
+
+<div class="layout">
+  <div>
+    <% if (featured.length) { %>
+    <section class="section" style="margin-top:0">
+      <div class="section-head"><h2><%- icon('star') %> <%= locName ? locName + ' — ' : '' %>Öne Çıkan İlanlar</h2></div>
+      <div class="list"><% for (const l of featured) { %><%- include('partials/listing-card', { l }) %><% } %></div>
+    </section>
+    <% } %>
+    <section class="section" style="margin-top:<%= featured.length ? '28px' : '0' %>">
+      <div class="section-head">
+        <h2><%= locName ? locName + ' — ' : '' %>Son İlanlar</h2>
+        <a href="/ilanlar">Tümünü gör <%- icon('arrow') %></a>
+      </div>
+      <% if (!latest.length && !featured.length) { %>
+        <div class="empty"><%- icon('list') %><p><%= locName ? locName + ' için' : 'Henüz' %> yayında ilan yok. İlk ilanı siz verin, ücretsiz!</p>
+          <div class="btn-row" style="justify-content:center"><a class="btn btn-accent" href="/ilan-ver"><%- icon('plus') %> İlan Ver</a><% if (locName) { %><a class="btn btn-ghost" href="/ilanlar?il=tum">Tüm Türkiye'ye bak</a><% } %></div></div>
+      <% } %>
+      <div class="list">
+        <% latest.forEach((l, i) => { %><%- include('partials/listing-card', { l }) %><% if (i === 4) { %><%- include('partials/ad', { slot: slots.list_inline }) %><% } %><% }) %>
+      </div>
+      <% if (latest.length >= 10) { %><a class="btn btn-ghost btn-block" href="/ilanlar" style="margin-top:14px">Daha fazla ilan gör</a><% } %>
+    </section>
+  </div>
+  <aside class="stack">
+    <%- include('partials/fuel') %>
+    <div class="card">
+      <h2 style="font-size:1.1rem">Nasıl çalışır?</h2>
+      <ol style="padding-left:22px;margin:0" class="stack">
+        <li><strong>Üye olun.</strong> E-posta ve telefonla 1 dakikada.</li>
+        <li><strong>İlan verin.</strong> Ücretsiz, 14 gün yayında.</li>
+        <li><strong>Mesajlaşın.</strong> Numaranızı vermeden site içinden konuşun.</li>
+      </ol>
+      <a class="btn btn-accent btn-block" href="/ilan-ver" style="margin-top:14px"><%- icon('plus') %> Ücretsiz İlan Ver</a>
+    </div>
+    <div class="card">
+      <h2 style="font-size:1.1rem"><%- icon('shield') %> Belgeli üyeler</h2>
+      <p class="small" style="margin:0">Yeşil <span class="tag tag-green"><%- icon('shield') %> Belgeli</span> rozeti olan üyelerin ehliyet, SRC veya ruhsat gibi belgeleri ekibimizce e-Devlet üzerinden kontrol edilmiştir.</p>
+    </div>
+  </aside>
+</div>
+<%- include('partials/footer') %>

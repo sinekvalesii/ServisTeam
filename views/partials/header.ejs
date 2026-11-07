@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="tr" class="<%= textXl ? 'text-xl' : '' %>">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title><%= typeof title !== 'undefined' && title ? title + ' | Servis Team' : 'Servis Team — Servis Şoförü, Servis Aracı ve Servis İlanları' %></title>
+  <meta name="description" content="<%= typeof metaDesc !== 'undefined' ? metaDesc : 'Servis şoförü, servis firması, araç sahibi ve servis arayanları bir araya getiren ücretsiz ilan sitesi. Personel servisi, okul servisi, VIP transfer ilanları.' %>">
+  <meta name="theme-color" content="#0E2A47">
+  <% if (typeof canonical !== 'undefined') { %><link rel="canonical" href="<%= baseUrl + canonical %>"><% } %>
+  <% if (typeof noindex !== 'undefined' && noindex) { %><meta name="robots" content="noindex"><% } %>
+  <meta property="og:site_name" content="Servis Team">
+  <meta property="og:title" content="<%= typeof title !== 'undefined' && title ? title : 'Servis Team' %>">
+  <meta property="og:image" content="<%= baseUrl %>/img/og.png">
+  <link rel="icon" href="/img/logo-mark.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/img/icon-192.png">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="preload" href="/fonts/ahn-latin-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/css/app.css?v=<%= assetV %>">
+  <% if (adsenseScript) { %><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=<%= adsenseClient %>" crossorigin="anonymous"></script><% } %>
+  <script src="/js/app.js?v=<%= assetV %>" defer></script>
+</head>
+<body data-csrf="<%= csrf %>" data-logged="<%= user ? 1 : 0 %>">
+<a class="skip" href="#icerik">İçeriğe geç</a>
+<%- include('icons') %>
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="/" aria-label="Servis Team ana sayfa">
+      <img src="/img/logo-mark.svg" alt="" width="40" height="40">
+      <span>Servis<b>Team</b></span>
+    </a>
+    <a class="loc-chip" href="/konum" title="Bölgeyi değiştir"><%- icon('pin') %> <span><%= locName || 'Tüm Türkiye' %></span></a>
+    <nav class="topnav" aria-label="Ana menü">
+      <a href="/ilanlar"><%- icon('search') %> İlanlar</a>
+      <% if (user) { %>
+        <a href="/mesajlar"><%- icon('chat') %> Mesajlar <% if (unread) { %><span class="count"><%= unread %></span><% } %></a>
+        <a href="/hesap"><%- icon('user') %> Hesabım</a>
+        <% if (['admin','moderator'].includes(user.role)) { %><a href="/yonetim"><%- icon('settings') %> Yönetim</a><% } %>
+      <% } else { %>
+        <a href="/giris"><%- icon('user') %> Giriş Yap</a>
+      <% } %>
+      <a class="btn-post" href="/ilan-ver"><%- icon('plus') %> İlan Ver</a>
+    </nav>
+  </div>
+</header>
+<% if (announcement) { %><div class="wrap" style="margin-top:12px"><div class="alert alert-warn"><%- icon('megaphone') %><div><%= announcement %></div></div></div><% } %>
+<main id="icerik">
+<div class="wrap">
+<% for (const f of flash) { %>
+  <div class="alert alert-<%= f.type %>" role="<%= f.type === 'err' ? 'alert' : 'status' %>"><%- icon(f.type === 'ok' ? 'check' : f.type === 'err' ? 'warn' : 'info') %><div><%= f.text %></div></div>
+<% } %>

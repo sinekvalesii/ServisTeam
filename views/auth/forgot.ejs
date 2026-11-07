@@ -1,0 +1,17 @@
+<%- include('../partials/header') %>
+<div class="narrow">
+  <div class="card">
+    <h1>Şifremi Unuttum</h1>
+    <p class="muted">Telefon numaranızı veya e-posta adresinizi yazın. Kayıtlı e-posta adresinize bir kod göndereceğiz.</p>
+    <% if (error) { %><div class="alert alert-err" role="alert"><%- icon('warn') %><div><%= error %></div></div><% } %>
+    <form method="post" action="/sifremi-unuttum">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <div class="field">
+        <label for="identifier">Telefon veya e-posta</label>
+        <input id="identifier" name="identifier" type="text" autocomplete="username" required>
+      </div>
+      <button class="btn btn-primary btn-block" type="submit">Kod Gönder</button>
+    </form>
+  </div>
+</div>
+<%- include('../partials/footer') %>

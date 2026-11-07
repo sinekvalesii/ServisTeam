@@ -1,0 +1,17 @@
+<% if (fuel && fuel.length) { const def = fuel.find(f => f.key === fuelRegion) || fuel[0]; %>
+<section class="fuel" aria-labelledby="fuel-title" data-fuel="<%= JSON.stringify(fuel.map(f => ({k:f.key, b:fmtNum(f.benzin), m:fmtNum(f.motorin), l:fmtNum(f.lpg), t:fmtDateTime(f.fetched_at)}))) %>">
+  <div class="fuel-head">
+    <h2 id="fuel-title"><%- icon('fuel') %> Güncel Akaryakıt</h2>
+    <label class="sr-only" for="fuel-region">Bölge</label>
+    <select id="fuel-region" data-fuel-select>
+      <% for (const f of fuel) { %><option value="<%= f.key %>" <%= f.key === def.key ? 'selected' : '' %>><%= f.label %></option><% } %>
+    </select>
+  </div>
+  <div class="fuel-prices">
+    <div><small>Benzin</small><strong data-f="b"><%= fmtNum(def.benzin) %></strong></div>
+    <div><small>Motorin</small><strong data-f="m"><%= fmtNum(def.motorin) %></strong></div>
+    <div><small>LPG</small><strong data-f="l"><%= fmtNum(def.lpg) %></strong></div>
+  </div>
+  <div class="fuel-meta">₺/litre · Son güncelleme: <span data-f="t"><%= fmtDateTime(def.fetched_at) %></span> · Pompa fiyatları istasyona göre değişebilir.</div>
+</section>
+<% } %>

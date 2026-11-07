@@ -1,0 +1,21 @@
+<%- include('../partials/header') %>
+<div class="narrow">
+  <div class="card">
+    <h1>Yeni Şifre Belirleyin</h1>
+    <% if (error) { %><div class="alert alert-err" role="alert"><%- icon('warn') %><div><%= error %></div></div><% } %>
+    <form method="post" action="/sifre-yenile">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <div class="field">
+        <label for="code">E-postanıza gelen kod</label>
+        <input id="code" name="code" class="input-otp" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required>
+      </div>
+      <div class="field">
+        <label for="password">Yeni şifreniz</label>
+        <div class="pw-wrap"><input id="password" name="password" type="password" autocomplete="new-password" minlength="8" required><button type="button" data-pw-toggle>Göster</button></div>
+        <div class="hint">En az 8 karakter; en az bir harf ve bir rakam.</div>
+      </div>
+      <button class="btn btn-primary btn-block" type="submit">Şifremi Değiştir</button>
+    </form>
+  </div>
+</div>
+<%- include('../partials/footer') %>

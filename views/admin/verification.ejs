@@ -1,0 +1,44 @@
+<%- include('_top') %>
+<a class="btn btn-quiet" href="/yonetim/belgeler"><%- icon('back') %> Belgeler</a>
+<div class="card">
+  <h1><%= tax.DOC_TYPES[v.doc_type].label %> — #<%= v.id %></h1>
+  <p><strong><%= v.display_name %></strong> · <%= tax.ACCOUNT_TYPES[v.account_type]?.label %> · <%= fmtDateTime(v.created_at) %></p>
+  <% if (v.status !== 'pending') { %>
+    <div class="alert alert-info"><%- icon('info') %><div>Bu başvuru sonuçlandı (<%= v.status %>). Belge verileri silinmiştir.</div></div>
+  <% } else if (v.method === 'barkod') { %>
+    <div class="alert alert-warn"><%- icon('lock') %><div>Bu bilgilerin görüntülenmesi kayıt altına alındı. Bilgileri kopyalayıp başka yerde saklamayın.</div></div>
+    <% if (secret) { %>
+    <div class="facts">
+      <div><small>Barkod numarası</small><strong style="font-family:monospace;font-size:1.1rem"><%= secret.barcode %></strong></div>
+      <div><small>T.C. Kimlik No</small><strong style="font-family:monospace;font-size:1.1rem"><%= secret.tckn %></strong></div>
+    </div>
+    <% } %>
+    <ol class="small">
+      <li><a href="https://www.turkiye.gov.tr/belge-dogrulama" target="_blank" rel="noopener noreferrer">turkiye.gov.tr/belge-dogrulama</a> sayfasını açın.</li>
+      <li>Barkod numarası ve T.C. kimlik numarasını girin.</li>
+      <li>Belgedeki ad-soyadın üyenin adıyla eşleştiğini ve belgenin <strong><%= tax.DOC_TYPES[v.doc_type].label %></strong> olduğunu kontrol edin.</li>
+      <li>Belgede geçerlilik tarihi varsa aşağıya girin.</li>
+    </ol>
+  <% } else { %>
+    <p><a class="btn btn-ghost" href="/yonetim/belgeler/<%= v.id %>/dosya" target="_blank" rel="noopener"><%- icon('file') %> Belgeyi aç</a></p>
+    <p class="small muted">Belgedeki ad-soyadın üyeyle eşleştiğini, belgenin güncel ve okunaklı olduğunu kontrol edin.</p>
+  <% } %>
+</div>
+<% if (v.status === 'pending') { %>
+<div class="grid-2">
+  <form method="post" class="card">
+    <input type="hidden" name="_csrf" value="<%= csrf %>"><input type="hidden" name="action" value="approve">
+    <h2 style="font-size:1.05rem;color:var(--green)">Onayla</h2>
+    <div class="field"><label for="vu">Geçerlilik bitişi <span class="opt">(varsa)</span></label><input id="vu" type="date" name="valid_until"></div>
+    <button class="btn btn-green btn-block"><%- icon('check') %> Onayla ve verileri sil</button>
+  </form>
+  <form method="post" class="card">
+    <input type="hidden" name="_csrf" value="<%= csrf %>"><input type="hidden" name="action" value="reject">
+    <h2 style="font-size:1.05rem;color:var(--red)">Reddet</h2>
+    <div class="field"><label for="rr">Gerekçe (kullanıcıya gösterilir)</label>
+      <select id="rr" name="reason"><option>Barkod doğrulanamadı</option><option>Belge sahibi üyeyle eşleşmiyor</option><option>Belgenin süresi dolmuş</option><option>Belge okunaksız</option><option>Yanlış belge türü</option></select></div>
+    <button class="btn btn-danger btn-block">Reddet ve verileri sil</button>
+  </form>
+</div>
+<% } %>
+<%- include('_bottom') %>

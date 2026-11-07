@@ -1,0 +1,25 @@
+<%- include('../partials/header') %>
+<div class="narrow">
+  <a class="btn btn-quiet" href="/hesap"><%- icon('back') %> Hesabım</a>
+  <h1>Araçlarım</h1>
+  <% if (!vehicles.length) { %><div class="empty"><%- icon('van') %><p>Kayıtlı aracınız yok.</p></div><% } %>
+  <% for (const v of vehicles) { %>
+    <div class="card" style="display:flex;gap:12px;align-items:center;padding:14px">
+      <%- icon('van') %>
+      <div style="flex:1">
+        <strong><%= (tax.VEHICLE_TYPES[v.vehicle_type] || '').split(' (')[0] %><%= v.brand ? ' · ' + v.brand : '' %><%= v.model ? ' ' + v.model : '' %></strong>
+        <div class="small muted"><%= v.capacity %> kişilik<%= v.model_year ? ' · ' + v.model_year : '' %><%= v.plate_city ? ' · ' + v.plate_city + ' plaka' : '' %><%= v.features.length ? ' · ' + v.features.map(f => tax.VEHICLE_FEATURES[f]).join(', ') : '' %></div>
+      </div>
+      <form method="post" action="/hesap/araclar/<%= v.id %>/sil" data-confirm="Bu araç silinsin mi?"><input type="hidden" name="_csrf" value="<%= csrf %>"><button class="btn btn-danger btn-sm" type="submit" aria-label="Aracı sil"><%- icon('trash') %></button></form>
+    </div>
+  <% } %>
+  <div class="card" style="margin-top:20px">
+    <h2>Araç Ekle</h2>
+    <form method="post" action="/hesap/araclar" novalidate>
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <%- include('../partials/vehicle-form', { form, errors }) %>
+      <button class="btn btn-primary btn-block" type="submit"><%- icon('plus') %> Aracı Ekle</button>
+    </form>
+  </div>
+</div>
+<%- include('../partials/footer') %>

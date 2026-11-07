@@ -1,0 +1,30 @@
+<%- include('_top') %>
+<a class="btn btn-quiet" href="/yonetim/sikayetler"><%- icon('back') %> Şikâyetler</a>
+<div class="card">
+  <h1>Şikâyet #<%= r.id %> <span class="tag"><%= r.status %></span></h1>
+  <p><strong>Neden:</strong> <%= tax.REPORT_REASONS[r.reason] || r.reason %> · <strong>Bildiren:</strong> <%= r.reporter_name || 'Ziyaretçi' %> <%= r.reporter_email ? '(' + r.reporter_email + ')' : '' %> · <%= fmtDateTime(r.created_at) %></p>
+  <% if (r.details) { %><div class="desc card" style="background:var(--bg)"><%= r.details %></div><% } %>
+</div>
+<% if (target && r.target_type === 'listing') { %>
+<div class="card"><h2>Şikâyet edilen ilan</h2>
+  <p><a href="/ilan/<%= target.id %>" target="_blank"><strong>#<%= target.id %> <%= target.title %></strong></a> — <%= target.display_name %> · durum: <%= target.status %></p>
+  <div class="desc small"><%= target.description %></div>
+  <a class="btn btn-ghost btn-sm" href="/yonetim/ilanlar?durum=<%= target.status %>&q=<%= target.id %>" style="margin-top:10px">İlan işlemlerine git</a>
+</div>
+<% } else if (target && r.target_type === 'user') { %>
+<div class="card"><h2>Şikâyet edilen kullanıcı</h2><a href="/yonetim/kullanicilar/<%= target.id %>"><%= target.display_name %> (<%= target.email %>)</a></div>
+<% } else if (target && r.target_type === 'conversation') { %>
+<div class="card"><h2>Şikâyet edilen konuşma</h2>
+  <p class="small muted"><%- icon('lock') %> Bu görüntüleme kayıt altına alındı. Taraflar: <a href="/yonetim/kullanicilar/<%= target.owner_id %>"><%= target.owner_name %></a> (ilan sahibi) ↔ <a href="/yonetim/kullanicilar/<%= target.other_id %>"><%= target.other_name %></a> · İlan: <%= target.listing_title %></p>
+  <div class="chat-log" style="max-height:420px;border-radius:12px">
+    <% for (const m of messages.slice().reverse()) { %><div class="bubble-msg <%= m.sender_id === target.owner_id ? '' : 'me' %>"><strong class="small"><%= m.display_name %></strong><br><span class="txt"><%= m.body %></span><time><%= fmtDateTime(m.created_at) %></time></div><% } %>
+  </div>
+</div>
+<% } %>
+<% if (r.status === 'open') { %>
+<div class="btn-row">
+  <form method="post" class="inline-form"><input type="hidden" name="_csrf" value="<%= csrf %>"><input type="hidden" name="action" value="resolve"><button class="btn btn-green"><%- icon('check') %> Çözüldü olarak kapat</button></form>
+  <form method="post" class="inline-form"><input type="hidden" name="_csrf" value="<%= csrf %>"><input type="hidden" name="action" value="dismiss"><button class="btn btn-ghost">Geçersiz say</button></form>
+</div>
+<% } %>
+<%- include('_bottom') %>

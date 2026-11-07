@@ -1,0 +1,55 @@
+<%- include('../partials/header') %>
+<a class="btn btn-quiet" href="/mesajlar"><%- icon('back') %> Tüm mesajlar</a>
+<div class="chat" data-chat="<%= c.id %>" data-me="<%= user.id %>">
+  <div class="chat-head">
+    <div class="avatar" style="width:44px;height:44px;font-size:1rem"><%= initials(other.display_name) %></div>
+    <div style="flex:1;min-width:0">
+      <strong><%= other.display_name %></strong>
+      <div class="small muted" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+        <% if (c.listing_id) { %><a href="/ilan/<%= c.listing_id %>">İlan: <%= c.listing_title %></a><% } else { %>İlan kaldırılmış<% } %>
+      </div>
+    </div>
+  </div>
+  <div class="chat-log" data-log aria-live="polite">
+    <div class="alert alert-warn safety" style="margin:0 0 8px"><%- icon('shield') %><div>İşe başlamadan <strong>kapora veya ön ödeme göndermeyin</strong>. Şüpheli durumda konuşmayı şikâyet edin.</div></div>
+    <% for (const m of messages) { const mine = m.sender_id === user.id; %>
+      <div class="bubble-msg <%= mine ? 'me' : '' %>" data-id="<%= m.id %>">
+<% if (m.flagged && !mine) { %><div class="tag tag-red" style="margin-bottom:6px"><%- icon('warn') %> Dikkat: ödeme talebi içerebilir</div><% } %><span class="txt"><%= m.body %></span><time><%= fmtDateTime(m.created_at) %></time>
+      </div>
+    <% } %>
+  </div>
+  <% if (blocked) { %>
+    <div class="alert alert-info" style="margin:10px"><%- icon('ban') %><div>Bu konuşmada mesajlaşma engellendi.</div></div>
+  <% } else if (other.status !== 'active') { %>
+    <div class="alert alert-info" style="margin:10px"><%- icon('info') %><div>Bu kullanıcı artık aktif değil.</div></div>
+  <% } else { %>
+  <form class="chat-form" method="post" action="/mesajlar/<%= c.id %>" data-chat-form>
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <label for="msg" class="sr-only">Mesajınız</label>
+    <textarea id="msg" name="body" maxlength="2000" placeholder="Mesajınızı yazın..." required></textarea>
+    <button class="btn btn-primary" type="submit" aria-label="Gönder"><%- icon('send') %><span class="sr-only">Gönder</span></button>
+  </form>
+  <% } %>
+</div>
+<div class="btn-row" style="margin-top:14px">
+  <form method="post" action="/mesajlar/<%= c.id %>/engelle" class="inline-form" <%= iBlocked ? '' : 'data-confirm="Bu kişiyi engellemek istiyor musunuz? Size mesaj gönderemeyecek."' %>>
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <% if (iBlocked) { %><input type="hidden" name="action" value="kaldir"><button class="btn btn-ghost btn-sm" type="submit">Engeli Kaldır</button>
+    <% } else { %><button class="btn btn-ghost btn-sm" type="submit"><%- icon('ban') %> Engelle</button><% } %>
+  </form>
+  <form method="post" action="/mesajlar/<%= c.id %>/sil" class="inline-form" data-confirm="Konuşma gelen kutunuzdan kaldırılsın mı?">
+    <input type="hidden" name="_csrf" value="<%= csrf %>"><button class="btn btn-ghost btn-sm" type="submit"><%- icon('trash') %> Konuşmayı Sil</button>
+  </form>
+  <details style="flex-basis:100%">
+    <summary class="btn btn-danger btn-sm" style="display:inline-flex"><%- icon('flag') %> Şikâyet Et</summary>
+    <form method="post" action="/sikayet" class="card" style="margin-top:10px">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <input type="hidden" name="target_type" value="conversation"><input type="hidden" name="target_id" value="<%= c.id %>"><input type="hidden" name="back" value="/mesajlar/<%= c.id %>">
+      <div class="field"><label for="reason">Neden?</label><select id="reason" name="reason"><% for (const [k, v] of Object.entries(tax.REPORT_REASONS)) { %><option value="<%= k %>"><%= v %></option><% } %></select></div>
+      <div class="field"><label for="details">Açıklama</label><textarea id="details" name="details" rows="3" maxlength="1000"></textarea></div>
+      <p class="small muted">Şikâyet ettiğinizde bu konuşma, incelenmek üzere yalnızca yetkili ekibimiz tarafından görüntülenebilir.</p>
+      <button class="btn btn-danger" type="submit">Şikâyeti Gönder</button>
+    </form>
+  </details>
+</div>
+<%- include('../partials/footer') %>

@@ -1,0 +1,17 @@
+<%- include('partials/header') %>
+<div class="narrow">
+  <div class="card">
+    <h1>Çerez Tercihleri</h1>
+    <p>Tercihinizi istediğiniz zaman değiştirebilirsiniz.</p>
+    <div class="stack">
+      <div class="alert alert-info"><%- icon('lock') %><div><strong>Zorunlu çerezler (her zaman açık):</strong> oturum, güvenlik (CSRF), seçtiğiniz il ve yazı boyutu tercihi. Bunlar olmadan site çalışmaz.</div></div>
+      <div class="alert alert-warn"><%- icon('megaphone') %><div><strong>Reklam çerezleri:</strong> Google AdSense ve iş ortaklarımızın size uygun reklam göstermesini sağlar. Şu an: <strong><%= consentAds ? 'AÇIK' : 'KAPALI' %></strong></div></div>
+    </div>
+    <div class="btn-row" style="margin-top:16px">
+      <button type="button" class="btn btn-primary" data-consent="all">Reklam çerezlerine izin ver</button>
+      <button type="button" class="btn btn-ghost" data-consent="necessary">Yalnızca zorunlu çerezler</button>
+    </div>
+    <p class="small muted" style="margin-top:14px">Ayrıntılı bilgi için <a href="/sayfa/cerez-politikasi">Çerez Politikası</a>.</p>
+  </div>
+</div>
+<%- include('partials/footer') %>

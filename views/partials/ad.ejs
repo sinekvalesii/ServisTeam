@@ -1,0 +1,18 @@
+<% const A = slot; if (A) { %>
+<aside class="ad" aria-label="Reklam">
+  <% if (A.type === 'house') { %>
+    <div class="ad-label">Reklam · <%= A.ad.advertiser %></div>
+    <a class="house-ad" href="/r/<%= A.ad.id %>" rel="sponsored noopener" target="_blank">
+      <% if (A.ad.image_path) { %><img src="<%= A.ad.image_path %>" alt="" loading="lazy"><% } %>
+      <div><strong><%= A.ad.title %></strong><% if (A.ad.body) { %><span class="small muted"><%= A.ad.body %></span><% } %></div>
+    </a>
+  <% } else if (A.type === 'adsense' && consentAds) { %>
+    <div class="ad-label">Reklam</div>
+    <div class="ad-box"><ins class="adsbygoogle" style="display:block;width:100%" data-ad-client="<%= A.client %>" data-ad-slot="<%= A.slotId %>" data-ad-format="auto" data-full-width-responsive="true"></ins></div>
+  <% } else if (A.type === 'empty') { %>
+    <a class="small muted" href="/sayfa/reklam" style="display:block;padding:14px;border:1px dashed var(--line);border-radius:12px;text-decoration:none">
+      <%- icon('megaphone') %> Bu alanda bölgenize reklam verebilirsiniz
+    </a>
+  <% } %>
+</aside>
+<% } %>

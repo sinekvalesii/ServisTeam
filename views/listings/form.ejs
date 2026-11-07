@@ -1,0 +1,142 @@
+<%- include('../partials/header') %>
+<% const F = form; const E = errors; const A = (k) => Array.isArray(F[k]) ? F[k] : (F[k] ? [F[k]] : []);
+   const action = editing ? `/ilan/${editing.id}/duzenle` : '/ilan-ver'; %>
+<div class="narrow" style="max-width:720px">
+  <h1><%= editing ? 'İlanı Düzenle' : 'Ücretsiz İlan Ver' %></h1>
+  <% if (!editing) { %><p class="muted">İlanınız <strong>14 gün</strong> yayında kalır. Süre dolunca "İlanlarım" bölümünden tek tıkla yeniden yayınlayabilirsiniz.</p><% } %>
+  <% if (Object.keys(E).length) { %><div class="alert alert-err" role="alert"><%- icon('warn') %><div>Lütfen kırmızı ile işaretli alanları kontrol edin.</div></div><% } %>
+
+  <form method="post" action="<%= action %>?_csrf=<%= csrf %>" enctype="multipart/form-data" novalidate>
+    <div class="card">
+      <h2>1. Ne arıyorsunuz / ne sunuyorsunuz?</h2>
+      <div class="choices cols-2">
+        <% const cats = Object.entries(tax.CATEGORIES).sort((a, b) => (suggested.includes(b[0]) ? 1 : 0) - (suggested.includes(a[0]) ? 1 : 0)); %>
+        <% for (const [k, c] of cats) { %>
+          <label class="choice"><input type="radio" name="category" value="<%= k %>" <%= F.category === k ? 'checked' : '' %> required>
+            <span class="box"><%- icon(c.icon) %><span><strong><%= c.label %></strong><% if (suggested.includes(k)) { %><span>Sizin için önerilen</span><% } %></span></span></label>
+        <% } %>
+      </div>
+      <% if (E.category) { %><div class="err-text"><%= E.category %></div><% } %>
+      <div class="field" style="margin-top:16px">
+        <span class="label">İlanı kim adına veriyorsunuz?</span>
+        <div class="choices cols-2">
+          <label class="choice"><input type="radio" name="lister_kind" value="bireysel" <%= F.lister_kind !== 'firma' ? 'checked' : '' %>><span class="box"><%- icon('user') %><span><strong>Bireysel</strong></span></span></label>
+          <label class="choice"><input type="radio" name="lister_kind" value="firma" <%= F.lister_kind === 'firma' ? 'checked' : '' %>><span class="box"><%- icon('building') %><span><strong>Firma</strong></span></span></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>2. İlan bilgileri</h2>
+      <div class="field">
+        <label for="title">İlan başlığı</label>
+        <input id="title" name="title" type="text" maxlength="90" value="<%= F.title || '' %>" placeholder="Örn. Esenyurt–İkitelli personel servisi için D1 şoför aranıyor" required data-count>
+        <% if (E.title) { %><div class="err-text"><%= E.title %></div><% } %>
+      </div>
+      <div class="field">
+        <label for="description">Açıklama</label>
+        <textarea id="description" name="description" rows="7" maxlength="4000" required placeholder="İşin detayları, çalışma saatleri, aranan nitelikler, araç durumu..."><%= F.description || '' %></textarea>
+        <div class="hint">Telefon, e-posta veya IBAN yazmayın; iletişim site içinden kurulur.</div>
+        <% if (E.description) { %><div class="err-text"><%= E.description %></div><% } %>
+      </div>
+      <div class="field">
+        <span class="label">Hizmet türü <span class="opt">(birden fazla seçebilirsiniz)</span></span>
+        <div class="pills"><% for (const [k, v] of Object.entries(tax.SERVICE_TYPES)) { %><label class="pill"><input type="checkbox" name="service_types" value="<%= k %>" <%= A('service_types').includes(k) ? 'checked' : '' %>><span><%= v %></span></label><% } %></div>
+      </div>
+      <div class="grid-2">
+        <div class="field">
+          <label for="vehicle_type">Araç tipi <span class="opt">(isteğe bağlı)</span></label>
+          <select id="vehicle_type" name="vehicle_type">
+            <option value="">Belirtmek istemiyorum</option>
+            <% for (const [k, v] of Object.entries(tax.VEHICLE_TYPES)) { %><option value="<%= k %>" <%= F.vehicle_type === k ? 'selected' : '' %>><%= v %></option><% } %>
+          </select>
+        </div>
+        <div class="field">
+          <label for="capacity">Kapasite (kişi) <span class="opt">(isteğe bağlı)</span></label>
+          <input id="capacity" name="capacity" type="number" inputmode="numeric" min="1" max="90" value="<%= F.capacity || '' %>">
+        </div>
+      </div>
+      <div class="field">
+        <span class="label">Çalışma saatleri <span class="opt">(isteğe bağlı)</span></span>
+        <div class="pills"><% for (const [k, v] of Object.entries(tax.SHIFTS)) { %><label class="pill"><input type="checkbox" name="shifts" value="<%= k %>" <%= A('shifts').includes(k) ? 'checked' : '' %>><span><%= v %></span></label><% } %></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>3. Konum ve güzergah</h2>
+      <div class="grid-2">
+        <div class="field">
+          <label for="city_code">İl</label>
+          <select id="city_code" name="city_code" data-city required>
+            <option value="">İl seçin</option>
+            <% for (const c of geo.iller) { %><option value="<%= c.code %>" <%= F.city_code === c.code ? 'selected' : '' %>><%= c.name %></option><% } %>
+          </select>
+          <% if (E.city_code) { %><div class="err-text"><%= E.city_code %></div><% } %>
+        </div>
+        <div class="field">
+          <label for="district">İlçe</label>
+          <select id="district" name="district" data-district data-selected="<%= F.district || '' %>">
+            <option value="">İlçe seçin</option>
+            <% if (F.city_code && geo.byCode[F.city_code]) { for (const d of geo.byCode[F.city_code].districts) { %><option <%= F.district === d ? 'selected' : '' %>><%= d %></option><% } } %>
+          </select>
+          <% if (E.district) { %><div class="err-text"><%= E.district %></div><% } %>
+        </div>
+      </div>
+      <div class="route" style="margin-top:4px">
+        <strong><%- icon('route') %> Güzergah <span class="opt">(isteğe bağlı)</span></strong>
+        <p class="small muted">Servisin nereden nereye gittiğini yazın. İlanınızda "Google Haritalar'da Gör" düğmesi çıkar.</p>
+        <div class="field"><label for="route_from">Başlangıç noktası</label><input id="route_from" name="route_from" type="text" maxlength="140" value="<%= F.route_from || '' %>" placeholder="Örn. Esenyurt Meydan"></div>
+        <div data-stops>
+          <% for (const s of A('route_stops')) { %><div class="field"><label>Ara durak</label><div style="display:flex;gap:8px"><input name="route_stops" type="text" maxlength="140" value="<%= s %>"><button type="button" class="btn btn-ghost btn-sm" data-stop-remove aria-label="Durağı kaldır"><%- icon('x') %></button></div></div><% } %>
+        </div>
+        <button type="button" class="btn btn-quiet btn-sm" data-stop-add><%- icon('plus') %> Ara durak ekle</button>
+        <div class="field" style="margin-top:10px"><label for="route_to">Varış noktası</label><input id="route_to" name="route_to" type="text" maxlength="140" value="<%= F.route_to || '' %>" placeholder="Örn. İkitelli OSB"></div>
+        <% if (E.route) { %><div class="err-text"><%= E.route %></div><% } %>
+        <button type="button" class="btn btn-ghost btn-sm" data-route-preview><%- icon('map') %> Haritada kontrol et</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>4. Ücret</h2>
+      <div class="grid-2">
+        <div class="field">
+          <label for="price_amount">Ücret (₺) <span class="opt">(isteğe bağlı)</span></label>
+          <input id="price_amount" name="price_amount" type="text" inputmode="numeric" value="<%= F.price_amount || '' %>" placeholder="Örn. 45000">
+          <% if (E.price_amount) { %><div class="err-text"><%= E.price_amount %></div><% } %>
+        </div>
+        <div class="field">
+          <label for="price_period">Ödeme şekli</label>
+          <select id="price_period" name="price_period">
+            <option value="">Seçin</option>
+            <% for (const [k, v] of Object.entries(tax.PRICE_PERIODS)) { %><option value="<%= k %>" <%= F.price_period === k ? 'selected' : '' %>><%= v %></option><% } %>
+          </select>
+          <% if (E.price_period) { %><div class="err-text"><%= E.price_period %></div><% } %>
+        </div>
+      </div>
+      <label class="check"><input type="checkbox" name="price_hidden" value="1" <%= F.price_hidden ? 'checked' : '' %>> <span>Ücreti ilanda gösterme <span class="muted">("Ücret görüşülür" yazar)</span></span></label>
+    </div>
+
+    <div class="card">
+      <h2>5. Fotoğraflar <span class="opt">(isteğe bağlı, en fazla 6)</span></h2>
+      <% if (editing && editing.photos.length) { %>
+        <div class="gallery">
+          <% for (const p of editing.photos) { %><label class="check" style="flex-direction:column"><img src="<%= p %>" alt=""><span><input type="checkbox" name="keep_photos" value="<%= p %>" checked> Kalsın</span></label><% } %>
+        </div>
+      <% } %>
+      <input type="file" name="photos" accept="image/jpeg,image/png,image/webp" multiple data-photo-input>
+      <div class="hint">Araç fotoğrafı ilanınızın daha çok ilgi görmesini sağlar. Fotoğraflardaki konum bilgisi otomatik silinir. Plaka görünüyorsa kapatmanızı öneririz.</div>
+      <% if (E.photos) { %><div class="err-text"><%= E.photos %></div><% } %>
+    </div>
+
+    <div class="card">
+      <h2>6. İletişim</h2>
+      <p class="small">İlgilenenler size <strong>site içinden mesaj</strong> gönderir; mesajlarınızı "Mesajlar" bölümünde görürsünüz.</p>
+      <label class="check"><input type="checkbox" name="show_phone" value="1" <%= F.show_phone ? 'checked' : '' %>> <span>Üye olan kişiler <strong>telefon numaramı görebilsin</strong>. <span class="muted">(Açık rıza — istediğiniz zaman kapatabilirsiniz.)</span></span></label>
+    </div>
+
+    <button class="btn btn-accent btn-block" type="submit" style="margin-top:16px;font-size:1.1rem"><%- icon('check') %> <%= editing ? 'Değişiklikleri Kaydet' : 'İlanı Yayınla' %></button>
+    <p class="small muted center" style="margin-top:10px">İlan vererek <a href="/sayfa/kullanim-kosullari" target="_blank">Kullanım Koşulları</a>'nı kabul etmiş olursunuz. İlan içeriğinden ilan sahibi sorumludur.</p>
+  </form>
+</div>
+<template id="stop-tpl"><div class="field"><label>Ara durak</label><div style="display:flex;gap:8px"><input name="route_stops" type="text" maxlength="140" placeholder="Örn. Bağcılar Meydan"><button type="button" class="btn btn-ghost btn-sm" data-stop-remove aria-label="Durağı kaldır"><%- icon('x') %></button></div></div></template>
+<%- include('../partials/footer') %>

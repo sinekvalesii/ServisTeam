@@ -1,0 +1,19 @@
+<%- include('../partials/header') %>
+<h1>Mesajlar</h1>
+<% if (!rows.length) { %>
+  <div class="empty"><%- icon('chat') %><p>Henüz mesajınız yok. Bir ilana mesaj gönderdiğinizde veya ilanınıza mesaj geldiğinde burada görünür.</p><a class="btn btn-primary" href="/ilanlar">İlanlara Göz At</a></div>
+<% } else { %>
+<div class="inbox card" style="padding:0;overflow:hidden">
+  <% for (const r of rows) { %>
+  <a class="row <%= r.unread ? 'unread' : '' %>" href="/mesajlar/<%= r.id %>">
+    <div class="avatar" style="width:46px;height:46px;font-size:1rem"><%= initials(r.other_name) %></div>
+    <div class="grow">
+      <strong><%= r.other_name %></strong> <span class="small muted">· <%= r.i_am_owner ? 'İlanınız' : 'İlan' %>: <%= r.listing_title %></span>
+      <div class="last"><%= r.last_body %></div>
+    </div>
+    <div class="small muted center"><%= timeAgo(r.last_message_at) %><% if (r.unread) { %><br><span class="count"><%= r.unread %></span><% } %></div>
+  </a>
+  <% } %>
+</div>
+<% } %>
+<%- include('../partials/footer') %>

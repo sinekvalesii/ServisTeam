@@ -1,0 +1,27 @@
+<%- include('partials/header') %>
+<div class="narrow">
+  <div class="card">
+    <h1>İletişim ve Şikâyet</h1>
+    <p>Sorularınız, hukuka aykırı içerik bildirimleri, KVKK başvurularınız ve reklam talepleriniz için formu doldurun. <strong>En geç 2 iş günü</strong> içinde dönüş yaparız.</p>
+    <% if (error) { %><div class="alert alert-err" role="alert"><%- icon('warn') %><div><%= error %></div></div><% } %>
+    <form method="post" action="/iletisim">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <div class="field"><label for="name">Adınız Soyadınız</label><input id="name" name="name" type="text" maxlength="80" value="<%= form.name || '' %>" required></div>
+      <div class="field"><label for="email">E-posta adresiniz</label><input id="email" name="email" type="email" value="<%= form.email || '' %>" required></div>
+      <div class="field"><label for="subject">Konu</label>
+        <select id="subject" name="subject">
+          <option value="genel">Genel soru / öneri</option>
+          <option value="icerik">Hukuka aykırı içerik bildirimi</option>
+          <option value="kvkk">KVKK başvurusu (kişisel verilerim)</option>
+          <option value="reklam">Reklam vermek istiyorum</option>
+          <option value="itiraz">Hesap / ilan kararına itiraz</option>
+        </select></div>
+      <div class="field"><label for="message">Mesajınız</label><textarea id="message" name="message" rows="6" maxlength="3000" required><%= form.message || '' %></textarea>
+        <div class="hint">İçerik bildiriminde ilan numarasını veya bağlantısını yazın.</div></div>
+      <button class="btn btn-primary btn-block" type="submit"><%- icon('send') %> Gönder</button>
+    </form>
+    <hr class="sep">
+    <p class="small"><strong>Doğrudan e-posta:</strong> <a href="mailto:destek@servisteam.com">destek@servisteam.com</a></p>
+  </div>
+</div>
+<%- include('partials/footer') %>

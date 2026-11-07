@@ -1,0 +1,29 @@
+<%- include('partials/header') %>
+<div class="narrow">
+  <div class="card">
+    <h1>Hangi ildeki ilanları görmek istersiniz?</h1>
+    <button type="button" class="btn btn-primary btn-block" data-geo><%- icon('pin') %> Konumumu kullan</button>
+    <p class="small muted" style="margin-top:8px">Konumunuz yalnızca telefonunuzda hangi ilde olduğunuzu bulmak için kullanılır; bize gönderilmez ve saklanmaz.</p>
+    <hr class="sep">
+    <form method="post" action="/konum">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <input type="hidden" name="back" value="/">
+      <p><strong>Büyükşehirler</strong></p>
+      <div class="loc-picker">
+        <% for (const code of ['34','06','35','16','41','07','01','42','27']) { %>
+          <button class="btn btn-ghost" name="il" value="<%= code %>" type="submit"><%= geo.cityName(code) %></button>
+        <% } %>
+      </div>
+      <div class="field" style="margin-top:18px">
+        <label for="il">Veya listeden seçin</label>
+        <select id="il" name="il" data-autosubmit>
+          <option value="">İl seçin</option>
+          <% for (const c of geo.iller) { %><option value="<%= c.code %>" <%= locCode === c.code ? 'selected' : '' %>><%= c.name %></option><% } %>
+        </select>
+      </div>
+      <button class="btn btn-primary btn-block" type="submit">Seçili İli Göster</button>
+      <button class="btn btn-quiet btn-block" name="il" value="tum" type="submit" style="margin-top:8px">Tüm Türkiye'yi göster</button>
+    </form>
+  </div>
+</div>
+<%- include('partials/footer') %>

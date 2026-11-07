@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: servisteam
+          POSTGRES_USER: servisteam
+          POSTGRES_PASSWORD: ci-test-password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U servisteam"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgres://servisteam:ci-test-password@localhost:5432/servisteam
+      FUEL_PROVIDER: manual
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Sözdizimi kontrolü
+        run: for f in $(find src -name "*.js"); do node --check "$f"; done
+      - name: Veritabanı şeması
+        run: npm run migrate
+      - name: Uçtan uca testler
+        run: npm test
+      - name: Güvenlik taraması
+        run: npm audit --omit=dev --audit-level=high
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Docker imajı derlenebiliyor mu
+        run: docker build -t servisteam:ci .

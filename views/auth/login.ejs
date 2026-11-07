@@ -1,0 +1,25 @@
+<%- include('../partials/header') %>
+<div class="narrow">
+  <div class="card">
+    <h1>Giriş Yap</h1>
+    <% if (devam) { %><div class="alert alert-info"><%- icon('info') %><div>İlan vermek, mesaj göndermek ve favori eklemek için giriş yapın.</div></div><% } %>
+    <% if (error) { %><div class="alert alert-err" role="alert"><%- icon('warn') %><div><%= error %></div></div><% } %>
+    <form method="post" action="/giris" novalidate>
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <div class="field">
+        <label for="identifier">Telefon numaranız veya e-posta adresiniz</label>
+        <input id="identifier" name="identifier" type="text" inputmode="email" autocomplete="username" value="<%= form.identifier || '' %>" placeholder="05xx xxx xx xx" required>
+      </div>
+      <div class="field">
+        <label for="password">Şifreniz</label>
+        <div class="pw-wrap"><input id="password" name="password" type="password" autocomplete="current-password" required><button type="button" data-pw-toggle>Göster</button></div>
+      </div>
+      <button class="btn btn-primary btn-block" type="submit">Giriş Yap</button>
+    </form>
+    <p class="center" style="margin-top:16px"><a href="/sifremi-unuttum">Şifremi unuttum</a></p>
+    <hr class="sep">
+    <p class="center"><strong>Hesabınız yok mu?</strong></p>
+    <a class="btn btn-accent btn-block" href="/kayit">Ücretsiz Üye Ol</a>
+  </div>
+</div>
+<%- include('../partials/footer') %>

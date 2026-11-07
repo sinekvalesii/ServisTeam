@@ -1,0 +1,40 @@
+<%- include('../partials/header') %>
+<div class="narrow">
+  <div class="card">
+    <h1>Ücretsiz Üye Ol</h1>
+    <p class="muted">Üyelik 1 dakika sürer. E-posta adresinize bir doğrulama kodu göndereceğiz.</p>
+    <form method="post" action="/kayit" novalidate>
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <div class="field">
+        <label for="name">Adınız Soyadınız <span class="opt">(firma iseniz yetkili adı)</span></label>
+        <input id="name" name="name" type="text" autocomplete="name" value="<%= form.name || '' %>" maxlength="80" required>
+        <% if (errors.name) { %><div class="err-text"><%= errors.name %></div><% } %>
+      </div>
+      <div class="field">
+        <label for="email">E-posta adresiniz</label>
+        <input id="email" name="email" type="email" autocomplete="email" inputmode="email" value="<%= form.email || '' %>" placeholder="ornek@gmail.com" required>
+        <% if (errors.email) { %><div class="err-text"><%= errors.email %></div><% } %>
+      </div>
+      <div class="field">
+        <label for="phone">Cep telefonunuz</label>
+        <input id="phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" value="<%= form.phone || '' %>" placeholder="05xx xxx xx xx" required>
+        <div class="hint"><%- icon('lock') %> Numaranız ilanlarda gizlidir. Siz izin vermedikçe kimse göremez.</div>
+        <% if (errors.phone) { %><div class="err-text"><%= errors.phone %></div><% } %>
+      </div>
+      <div class="field">
+        <label for="password">Şifre belirleyin</label>
+        <div class="pw-wrap"><input id="password" name="password" type="password" autocomplete="new-password" minlength="8" required><button type="button" data-pw-toggle>Göster</button></div>
+        <div class="hint">En az 8 karakter; en az bir harf ve bir rakam.</div>
+        <% if (errors.password) { %><div class="err-text"><%= errors.password %></div><% } %>
+      </div>
+      <label class="check"><input type="checkbox" name="kvkk" value="1" required> <span><a href="/sayfa/kvkk" target="_blank">KVKK Aydınlatma Metni</a>'ni okudum.</span></label>
+      <% if (errors.kvkk) { %><div class="err-text"><%= errors.kvkk %></div><% } %>
+      <label class="check"><input type="checkbox" name="terms" value="1" required> <span><a href="/sayfa/kullanim-kosullari" target="_blank">Kullanım Koşulları</a>'nı kabul ediyorum.</span></label>
+      <% if (errors.terms) { %><div class="err-text"><%= errors.terms %></div><% } %>
+      <label class="check"><input type="checkbox" name="marketing" value="1" <%= form.marketing ? 'checked' : '' %>> <span class="muted">Kampanya ve duyurular için bana e-posta/SMS gönderilmesine izin veriyorum. <em>(İsteğe bağlı)</em></span></label>
+      <button class="btn btn-accent btn-block" type="submit" style="margin-top:10px">Üye Ol</button>
+    </form>
+    <p class="center" style="margin-top:16px">Zaten üye misiniz? <a href="/giris">Giriş yapın</a></p>
+  </div>
+</div>
+<%- include('../partials/footer') %>

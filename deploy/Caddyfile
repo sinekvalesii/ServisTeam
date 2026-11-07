@@ -1,0 +1,21 @@
+# Alan adınız sunucunun IP'sine yönlendirildiğinde Caddy SSL sertifikasını otomatik alır.
+servisteam.com {
+	encode gzip
+	request_body {
+		max_size 60MB
+	}
+	reverse_proxy app:3000 {
+		# 5651: kaynak port bilgisi uygulamaya iletilir
+		header_up X-Real-Port {remote_port}
+	}
+	log {
+		output file /data/access.log {
+			roll_size 50MiB
+			roll_keep 30
+		}
+	}
+}
+
+www.servisteam.com {
+	redir https://servisteam.com{uri} permanent
+}

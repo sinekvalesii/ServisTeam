@@ -1,0 +1,25 @@
+<%- include('_top') %>
+<h1>Belge Doğrulama</h1>
+<nav class="tabs">
+  <a href="?durum=pending" class="<%= status === 'pending' ? 'on' : '' %>">Bekleyen</a>
+  <a href="?durum=approved" class="<%= status === 'approved' ? 'on' : '' %>">Onaylanan</a>
+  <a href="?durum=rejected" class="<%= status === 'rejected' ? 'on' : '' %>">Reddedilen</a>
+</nav>
+<div class="alert alert-warn"><%- icon('lock') %><div>Bekleyen belgeler <strong>7 gün içinde</strong> sonuçlandırılmazsa güvenlik gereği otomatik silinir ve başvuru düşer. Karar verildiği anda belge verileri imha edilir.</div></div>
+<div class="table-wrap"><table class="t">
+  <thead><tr><th>No</th><th>Kullanıcı</th><th>Belge</th><th>Yöntem</th><th>Tarih</th><th></th></tr></thead>
+  <tbody>
+  <% for (const v of rows) { %>
+    <tr>
+      <td>#<%= v.id %></td>
+      <td><a href="/yonetim/kullanicilar/<%= v.user_id %>"><%= v.display_name %></a><div class="small muted"><%= tax.ACCOUNT_TYPES[v.account_type]?.label %></div></td>
+      <td><%= tax.DOC_TYPES[v.doc_type].label %></td>
+      <td><%= v.method === 'barkod' ? 'e-Devlet barkodu' : 'Dosya' %></td>
+      <td class="small"><%= fmtDateTime(v.created_at) %><% if (v.status === 'pending') { %><br><span style="color:var(--red)">Silinme: <%= fmtDate(v.purge_after) %></span><% } %></td>
+      <td><% if (v.status === 'pending') { %><a class="btn btn-primary btn-sm" href="/yonetim/belgeler/<%= v.id %>">İncele</a><% } %></td>
+    </tr>
+  <% } %>
+  <% if (!rows.length) { %><tr><td colspan="6" class="muted">Kayıt yok.</td></tr><% } %>
+  </tbody>
+</table></div>
+<%- include('_bottom') %>

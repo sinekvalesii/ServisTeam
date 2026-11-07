@@ -1,0 +1,10 @@
+<%- include('../partials/header') %>
+<div class="admin-shell">
+  <nav class="admin-nav" aria-label="Yönetim menüsü">
+    <% const items = [['dashboard','/yonetim','chart','Özet'],['listings','/yonetim/ilanlar','list','İlanlar'],['users','/yonetim/kullanicilar','users','Kullanıcılar'],
+      ['reports','/yonetim/sikayetler','flag','Şikâyetler'],['verifications','/yonetim/belgeler','shield','Belgeler'],['fuel','/yonetim/yakit','fuel','Akaryakıt']];
+      if (isAdmin) items.push(['ads','/yonetim/reklamlar','megaphone','Reklamlar'],['pages','/yonetim/sayfalar','file','Sayfalar'],['settings','/yonetim/ayarlar','settings','Ayarlar'],['logs','/yonetim/kayitlar','clock','Kayıtlar']);
+      const sec = { listing: 'listings', user: 'users', report: 'reports', verification: 'verifications' }[section] || section; %>
+    <% for (const [k, href, ic, label] of items) { %><a href="<%= href %>" class="<%= sec === k ? 'on' : '' %>"><%- icon(ic) %> <%= label %></a><% } %>
+  </nav>
+  <div>

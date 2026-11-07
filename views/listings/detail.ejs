@@ -1,0 +1,137 @@
+<%- include('../partials/header') %>
+<% const cat = tax.CATEGORIES[l.category] || {}; const price = fmtPrice(l); const featured = l.featured_until && new Date(l.featured_until) > new Date(); const ownerT = tax.ACCOUNT_TYPES[l.owner_type] || {}; %>
+<a class="btn btn-quiet" href="/ilanlar" data-back><%- icon('back') %> İlanlara dön</a>
+
+<% if (l.status === 'passive') { %><div class="alert alert-warn"><%- icon('clock') %><div>Bu ilanın yayın süresi dolmuş. İlan sahibi yeniden yayınlamadıkça mesaj gönderilemez.</div></div><% } %>
+<% if (l.status === 'pending') { %><div class="alert alert-info"><%- icon('clock') %><div>Bu ilan onay bekliyor. Onaylandığında herkes görebilecek.</div></div><% } %>
+<% if (l.status === 'rejected') { %><div class="alert alert-err"><%- icon('warn') %><div>Bu ilan yayına alınmadı. <%= l.reject_reason ? 'Gerekçe: ' + l.reject_reason : '' %> Düzenleyip tekrar gönderebilirsiniz.</div></div><% } %>
+
+<div class="layout detail">
+  <div>
+    <div class="card">
+      <div class="tags">
+        <% if (featured) { %><span class="tag tag-amber"><%- icon('star') %> Öne Çıkan</span><% } %>
+        <span class="tag"><%= cat.label %></span>
+        <span class="tag tag-gray"><%= l.lister_kind === 'firma' ? 'Firma' : 'Bireysel' %></span>
+      </div>
+      <h1><%= l.title %></h1>
+      <% if (price) { %><div class="price" style="font-size:1.4rem;font-weight:700;color:var(--green)"><%= price %></div>
+      <% } else { %><div class="muted"><em>Ücret görüşülür</em></div><% } %>
+      <% if (!isOwner && l.status === 'active') { %><a class="btn btn-primary btn-block mobile-only" href="#iletisim" style="margin-top:12px"><%- icon('chat') %> İlan Sahibine Ulaş</a><% } %>
+
+      <div class="facts">
+        <div><small>Konum</small><strong><%= geo.cityName(l.city_code) %><%= l.district ? ' / ' + l.district : '' %></strong></div>
+        <div><small>İlan tarihi</small><strong><%= fmtDate(l.published_at || l.created_at) %></strong></div>
+        <% if (l.vehicle_type) { %><div><small>Araç tipi</small><strong><%= tax.VEHICLE_TYPES[l.vehicle_type] %></strong></div><% } %>
+        <% if (l.capacity) { %><div><small>Kapasite</small><strong><%= l.capacity %> kişi</strong></div><% } %>
+        <% if (l.service_types.length) { %><div><small>Hizmet türü</small><strong><%= l.service_types.map(s => tax.SERVICE_TYPES[s]).join(', ') %></strong></div><% } %>
+        <% if (l.shifts.length) { %><div><small>Çalışma saatleri</small><strong><%= l.shifts.map(s => tax.SHIFTS[s]).join(', ') %></strong></div><% } %>
+        <div><small>İlan no</small><strong><%= l.id %></strong></div>
+        <div><small>Görüntülenme</small><strong><%= l.view_count %></strong></div>
+      </div>
+
+      <% if (l.route_from && l.route_to) { %>
+      <div class="route">
+        <h2 style="font-size:1.1rem"><%- icon('route') %> Güzergah</h2>
+        <ol>
+          <li><strong><%= l.route_from %></strong> <span class="small muted">(başlangıç)</span></li>
+          <% for (const s of l.route_stops) { %><li><%= s %></li><% } %>
+          <li><strong><%= l.route_to %></strong> <span class="small muted">(varış)</span></li>
+        </ol>
+        <a class="btn btn-primary btn-block" href="<%= mapsUrl %>" target="_blank" rel="noopener"><%- icon('map') %> Güzergahı Google Haritalar'da Gör</a>
+      </div>
+      <% } %>
+
+      <h2 style="margin-top:20px;font-size:1.15rem">Açıklama</h2>
+      <div class="desc"><%= l.description %></div>
+
+      <% if (l.photos.length) { %>
+      <div class="gallery">
+        <% for (const p of l.photos) { %><a href="<%= p %>" target="_blank" rel="noopener"><img src="<%= p %>" alt="İlan fotoğrafı" loading="lazy"></a><% } %>
+      </div>
+      <% } %>
+    </div>
+
+    <%- include('../partials/ad', { slot: slots.detail_bottom }) %>
+
+    <% if (similar.length) { %>
+    <section class="section">
+      <h2>Benzer ilanlar</h2>
+      <div class="list"><% for (const s of similar) { %><%- include('../partials/listing-card', { l: s }) %><% } %></div>
+    </section>
+    <% } %>
+  </div>
+
+  <aside>
+    <div class="card">
+      <div class="owner">
+        <div class="avatar"><%= initials(l.display_name) %></div>
+        <div>
+          <strong><%= l.lister_kind === 'firma' && l.company_name ? l.company_name : l.display_name %></strong>
+          <div class="small muted"><%= ownerT.label %> · Üyelik: <%= fmtDate(l.owner_since).split(' ').slice(1).join(' ') %></div>
+        </div>
+      </div>
+      <div class="badges">
+        <span class="tag tag-green"><%- icon('mail') %> E-posta onaylı</span>
+        <% for (const d of docs) { %><span class="tag tag-green"><%- icon('shield') %> <%= tax.DOC_TYPES[d.doc_type].short %></span><% } %>
+      </div>
+      <% if (l.owner_profile && l.owner_profile.experience_years) { %><p class="small" style="margin:10px 0 0"><%= l.owner_profile.experience_years %> yıl deneyim<%= l.owner_profile.license_classes && l.owner_profile.license_classes.length ? ' · Ehliyet: ' + l.owner_profile.license_classes.join(', ') : '' %></p><% } %>
+      <p class="small muted" style="margin:6px 0 0"><%= ownerCount %> aktif ilanı var</p>
+      <hr class="sep">
+
+      <div class="stack" id="iletisim">
+      <% if (isOwner) { %>
+        <a class="btn btn-primary btn-block" href="/ilan/<%= l.id %>/duzenle"><%- icon('edit') %> İlanı Düzenle</a>
+        <a class="btn btn-ghost btn-block" href="/hesap/ilanlarim">İlanlarım</a>
+      <% } else if (l.status === 'active') { %>
+        <% if (!user) { %>
+          <a class="btn btn-primary btn-block" href="/giris?devam=1"><%- icon('chat') %> Mesaj Gönder</a>
+          <p class="small muted center" style="margin:0">Mesaj göndermek için giriş yapın.</p>
+        <% } else if (conversation) { %>
+          <a class="btn btn-primary btn-block" href="/mesajlar/<%= conversation.id %>"><%- icon('chat') %> Mesajlaşmaya Devam Et</a>
+        <% } else { %>
+          <form method="post" action="/mesajlar/baslat" class="stack">
+            <input type="hidden" name="_csrf" value="<%= csrf %>">
+            <input type="hidden" name="listing_id" value="<%= l.id %>">
+            <label for="first" class="sr-only">Mesajınız</label>
+            <textarea id="first" name="body" rows="3" maxlength="2000" required>Merhaba, "<%= l.title %>" ilanınızla ilgileniyorum. Detayları konuşabilir miyiz?</textarea>
+            <button class="btn btn-primary btn-block" type="submit"><%- icon('send') %> Mesaj Gönder</button>
+          </form>
+        <% } %>
+        <% if (l.show_phone) { %>
+          <button type="button" class="btn btn-ghost btn-block" data-phone="<%= l.id %>"><%- icon('phone') %> Telefonu Göster</button>
+        <% } %>
+      <% } %>
+      <button type="button" class="btn btn-quiet btn-block <%= l.is_fav ? 'on' : '' %>" data-fav="<%= l.id %>" data-fav-text aria-pressed="<%= l.is_fav ? 'true' : 'false' %>">
+        <%- icon(l.is_fav ? 'heart-fill' : 'heart') %> <span><%= l.is_fav ? 'Favorilerde' : 'Favorilere Ekle' %></span>
+      </button>
+      </div>
+    </div>
+
+    <div class="card safety">
+      <h2 style="font-size:1.05rem"><%- icon('shield') %> Güvenliğiniz için</h2>
+      <ul style="padding-left:20px;margin:0">
+        <li>İşe başlamadan <strong>kapora, ön ödeme veya "dosya parası"</strong> göndermeyin.</li>
+        <li>Görüşmeleri mümkünse <strong>site içi mesajlaşmada</strong> yapın.</li>
+        <li>Belgeleri iş yerinde, yüz yüze kontrol edin.</li>
+      </ul>
+    </div>
+
+    <% if (!isOwner) { %>
+    <details class="card">
+      <summary style="cursor:pointer;font-weight:700;color:var(--red)"><%- icon('flag') %> İlanı şikâyet et</summary>
+      <% if (user) { %>
+      <form method="post" action="/sikayet" style="margin-top:12px">
+        <input type="hidden" name="_csrf" value="<%= csrf %>">
+        <input type="hidden" name="target_type" value="listing"><input type="hidden" name="target_id" value="<%= l.id %>"><input type="hidden" name="back" value="/ilan/<%= l.id %>">
+        <div class="field"><label for="reason">Neden?</label>
+          <select id="reason" name="reason"><% for (const [k, v] of Object.entries(tax.REPORT_REASONS)) { %><option value="<%= k %>"><%= v %></option><% } %></select></div>
+        <div class="field"><label for="details">Açıklama <span class="opt">(isteğe bağlı)</span></label><textarea id="details" name="details" rows="3" maxlength="1000"></textarea></div>
+        <button class="btn btn-danger btn-block" type="submit">Şikâyeti Gönder</button>
+      </form>
+      <% } else { %><p class="small" style="margin-top:10px">Şikâyet için <a href="/giris?devam=1">giriş yapın</a> veya <a href="/iletisim">iletişim formunu</a> kullanın.</p><% } %>
+    </details>
+    <% } %>
+  </aside>
+</div>
+<%- include('../partials/footer') %>

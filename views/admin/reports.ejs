@@ -1,0 +1,24 @@
+<%- include('_top') %>
+<h1>Şikâyetler ve Başvurular</h1>
+<nav class="tabs">
+  <a href="?durum=open" class="<%= status === 'open' ? 'on' : '' %>">Açık</a>
+  <a href="?durum=resolved" class="<%= status === 'resolved' ? 'on' : '' %>">Çözülen</a>
+  <a href="?durum=dismissed" class="<%= status === 'dismissed' ? 'on' : '' %>">Reddedilen</a>
+</nav>
+<div class="alert alert-info"><%- icon('info') %><div>5651 sayılı Kanun kapsamında hukuka aykırı içerik bildirimlerini ve KVKK başvurularını gecikmeden (KVKK başvuruları en geç 30 gün) sonuçlandırın.</div></div>
+<div class="table-wrap"><table class="t">
+  <thead><tr><th>No</th><th>Tür</th><th>Neden</th><th>Bildiren</th><th>Tarih</th></tr></thead>
+  <tbody>
+  <% for (const r of rows) { %>
+    <tr>
+      <td><a href="/yonetim/sikayetler/<%= r.id %>"><strong>#<%= r.id %></strong></a></td>
+      <td><%= { listing: 'İlan', user: 'Kullanıcı', conversation: 'Mesajlaşma', site: 'İletişim formu' }[r.target_type] %> <%= r.target_id || '' %></td>
+      <td><%= tax.REPORT_REASONS[r.reason] || { genel: 'Genel', icerik: 'Hukuka aykırı içerik', kvkk: 'KVKK başvurusu', reklam: 'Reklam talebi', itiraz: 'İtiraz' }[r.reason] || r.reason %></td>
+      <td class="small"><%= r.reporter_name || 'Ziyaretçi' %></td>
+      <td class="small"><%= fmtDateTime(r.created_at) %></td>
+    </tr>
+  <% } %>
+  <% if (!rows.length) { %><tr><td colspan="5" class="muted">Kayıt yok.</td></tr><% } %>
+  </tbody>
+</table></div>
+<%- include('_bottom') %>

@@ -1,0 +1,64 @@
+</div>
+</main>
+<footer class="site">
+  <div class="wrap">
+    <div class="cols">
+      <div>
+        <a class="brand" href="/"><img src="/img/logo-mark.svg" alt="" width="40" height="40"><span>Servis<b>Team</b></span></a>
+        <p style="margin-top:10px">Servis şoförlerini, servis firmalarını, araç sahiplerini ve servis arayanları bir araya getirir. İlan vermek ücretsizdir.</p>
+        <button type="button" class="btn btn-sm btn-ghost" data-text-size><%- icon('text') %> Yazıyı büyüt / küçült</button>
+      </div>
+      <div>
+        <strong>Servis Team</strong>
+        <ul>
+          <li><a href="/sayfa/hakkimizda">Hakkımızda</a></li>
+          <li><a href="/sayfa/guvenli-ilan">Güvenli ilan rehberi</a></li>
+          <li><a href="/sayfa/reklam">Reklam verin</a></li>
+          <li><a href="/iletisim">İletişim / Şikâyet bildir</a></li>
+        </ul>
+      </div>
+      <div>
+        <strong>Yasal</strong>
+        <ul>
+          <li><a href="/sayfa/kvkk">KVKK Aydınlatma Metni</a></li>
+          <li><a href="/sayfa/kullanim-kosullari">Kullanım Koşulları</a></li>
+          <li><a href="/sayfa/cerez-politikasi">Çerez Politikası</a></li>
+          <li><a href="/cerez-tercihleri">Çerez tercihlerim</a></li>
+        </ul>
+      </div>
+    </div>
+    <p class="small" style="margin:20px 0 0">© <%= new Date().getFullYear() %> Servis Team. Servis Team bir yer sağlayıcıdır; ilan içeriklerinden ilan sahipleri sorumludur (5651 sayılı Kanun).</p>
+  </div>
+</footer>
+
+<nav class="tabbar" aria-label="Alt menü">
+  <a href="/" class="<%= nav === 'home' ? 'active' : '' %>"><%- icon('home') %>Ana Sayfa</a>
+  <a href="/ilanlar" class="<%= nav === 'list' ? 'active' : '' %>"><%- icon('search') %>İlanlar</a>
+  <a href="/ilan-ver" class="post"><span class="bubble"><%- icon('plus') %></span>İlan Ver</a>
+  <a href="/mesajlar" class="<%= nav === 'msg' ? 'active' : '' %>"><%- icon('chat') %>Mesajlar<% if (unread) { %><span class="count"><%= unread %></span><% } %></a>
+  <a href="<%= user ? '/hesap' : '/giris' %>" class="<%= nav === 'me' ? 'active' : '' %>"><%- icon('user') %><%= user ? 'Hesabım' : 'Giriş' %></a>
+</nav>
+
+<% if (!consentSet) { %>
+<div class="cookie" role="dialog" aria-label="Çerez tercihi" data-cookie-banner>
+  <strong>Çerezler hakkında</strong>
+  <p>Sitenin çalışması için zorunlu çerezleri kullanıyoruz. İzin verirseniz reklam çerezleri de kullanılır; bu sayede site ücretsiz kalır. <a href="/sayfa/cerez-politikasi">Ayrıntılar</a></p>
+  <div class="btn-row">
+    <button type="button" class="btn btn-primary btn-sm" data-consent="all">Kabul ediyorum</button>
+    <button type="button" class="btn btn-ghost btn-sm" data-consent="necessary">Yalnızca zorunlu</button>
+  </div>
+</div>
+<% } %>
+<% if (askLocation) { %>
+<div class="cookie" style="bottom:auto;top:76px" role="dialog" aria-label="Konum" data-loc-banner hidden>
+  <strong><%- icon('pin') %> Bölgenizdeki ilanları gösterelim mi?</strong>
+  <p>Konumunuz yalnızca hangi ilde olduğunuzu bulmak için telefonunuzda kullanılır, bize gönderilmez.</p>
+  <div class="btn-row">
+    <button type="button" class="btn btn-primary btn-sm" data-geo>Konumumu kullan</button>
+    <a class="btn btn-ghost btn-sm" href="/konum">İl seçeceğim</a>
+    <button type="button" class="btn btn-quiet btn-sm" data-loc-dismiss>Şimdi değil</button>
+  </div>
+</div>
+<% } %>
+</body>
+</html>
