@@ -98,12 +98,12 @@ Kod tarafı hazır; aşağıdakiler hukuki/idari adımlar. **Yasal metinler tasl
 
 ## 6. Tek dosyalık sürüm (önizleme)
 
-`index.html`, sunucusuz çalışan, tek dosyalık sürümdür: tüm ekranlar, örnek ilanlar ve admin paneli içindedir; veriler ziyaretçinin tarayıcısında (localStorage) tutulur. **Tanıtım ve tasarım onayı içindir**, gerçek kullanıcılar için sunucu sürümü kullanılmalıdır (ilanlar cihazlar arasında paylaşılmaz, e-posta gönderilmez).
+`docs/index.html`, sunucusuz çalışan, tek dosyalık sürümdür: tüm ekranlar, örnek ilanlar ve admin paneli içindedir; veriler ziyaretçinin tarayıcısında (localStorage) tutulur. **Tanıtım ve tasarım onayı içindir**, gerçek kullanıcılar için sunucu sürümü kullanılmalıdır (ilanlar cihazlar arasında paylaşılmaz, e-posta gönderilmez).
 
 Yeniden derlemek için:
 ```bash
 node standalone/build.js "ADMIN-SIFRESI"   # → standalone/dist/servisteam.html
-cp standalone/dist/servisteam.html index.html
+cp standalone/dist/servisteam.html docs/index.html
 ```
 
 ## 7. Dosya yapısı
