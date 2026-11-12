@@ -4,6 +4,8 @@
 
 <p align="center"><img src="docs/ekran-mobil-ilan.png" width="260" alt="Mobil ilan detayı"> &nbsp; <img src="docs/ekran-masaustu.png" width="520" alt="Masaüstü ana sayfa"></p>
 
+🌐 **Canlı önizleme:** https://sinekvalesii.github.io/ServisTeam/ — tarayıcıda çalışan tek dosyalık sürüm (veriler ziyaretçinin kendi cihazında saklanır).
+
 🎬 **Tanıtım videosu (60 sn):** [docs/tanitim-videosu.mp4](docs/tanitim-videosu.mp4)
 
 Servis şoförlerini, araç sahiplerini, servis firmalarını, kurumları ve servis arayan velileri buluşturan ilan platformu.
@@ -94,7 +96,17 @@ Kod tarafı hazır; aşağıdakiler hukuki/idari adımlar. **Yasal metinler tasl
 - **Online ödeme** bilinçli olarak yok; öne çıkarma admin'den manuel yapılır ve ücret alanına girilen tutar kayda geçer.
 - **Adli sicil kaydı** özel nitelikli kişisel veri olduğu için platformda istenmez.
 
-## 6. Dosya yapısı
+## 6. Tek dosyalık sürüm (önizleme)
+
+`index.html`, sunucusuz çalışan, tek dosyalık sürümdür: tüm ekranlar, örnek ilanlar ve admin paneli içindedir; veriler ziyaretçinin tarayıcısında (localStorage) tutulur. **Tanıtım ve tasarım onayı içindir**, gerçek kullanıcılar için sunucu sürümü kullanılmalıdır (ilanlar cihazlar arasında paylaşılmaz, e-posta gönderilmez).
+
+Yeniden derlemek için:
+```bash
+node standalone/build.js "ADMIN-SIFRESI"   # → standalone/dist/servisteam.html
+cp standalone/dist/servisteam.html index.html
+```
+
+## 7. Dosya yapısı
 
 ```
 src/server.js          uygulama, güvenlik başlıkları, oturum

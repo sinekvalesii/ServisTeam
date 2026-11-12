@@ -3,3 +3,4 @@ storage/
 backups/
 .env
 *.log
+standalone/dist/
